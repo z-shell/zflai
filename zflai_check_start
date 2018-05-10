@@ -1,0 +1,27 @@
+# zflai_check_start
+#
+# Ensures that the in-memory log-keeper runs and isn't close
+# to exit because of being idle for a long time (i.e. close
+# to ZFLAI_KEEP_ALIVE). If any of these is false, ensures that
+# the log-keeper will quit, and starts a fresh instance. This
+# protects from race conditions.
+#
+# No input, no return value (always 0)
+
+# Running, but dangerously close to idle-exit moment?
+if (( ZFLAI_FD != 0 && ZFLAI_LAST_LOG + ZFLAI_KEEP_ALIVE - 10 < EPOCHSECONDS )); then
+    builtin print -u$ZFLAI_FD '!ZFLAI-SPECIAL-CMD: exit' 2>/dev/null
+    builtin exec {ZFLAI_FD}<&-
+    ZFLAI_FD=0
+fi
+
+# Running (not much idle, that was checked above) ?
+(( ZFLAI_FD != 0 )) && return 0
+
+# Not running, or closed to prevent race condition - start
+# a new agent
+builtin exec {ZFLAI_FD}> >(zflai_memory_keeper) || return 1
+
+return 0
+
+# vim:ft=zsh:et

@@ -1,0 +1,49 @@
+# zflai_memory_keeper
+#
+# Receives log lines on stdin, stores them to internal memory buffer
+#
+# stdin  ---LOGS-DATA-->  internal array of lines  ---LOGS-DATA-->  log-file
+#
+
+# Use XDG_CACHE_HOME, with default (XDG defined) $HOME/.cache
+local OUT_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
+[[ ! -d "$OUT_DIR" ]] && command mkdir -p "$OUT_DIR"
+
+local keep_alive_time
+zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
+
+local -a LOGS
+
+typeset -F SECONDS=0
+integer action_time="$SECONDS"
+
+local line cause="exit/${keep_alive_time}s-idle"
+while (( 1 )); do
+    read -r -t 2 line && {
+        if [[ "$line" = "!ZFLAI-SPECIAL-CMD: "* ]]; then
+            line="${line#\!ZFLAI-SPECIAL-CMD: }"
+            case "$line" in
+                exit)
+                    action_time="-$keep_alive_time"
+                    cause="exit/forbid-race-condition"
+                    ;;
+            esac
+        else
+            LOGS+=( "$line" )
+            action_time="$SECONDS"
+        fi
+    }
+
+    # Being idle too long - exit, quickly close stdin
+    # so that it is clear we're not reading more data
+    (( (SECONDS - action_time) >= keep_alive_time )) && { builtin exec 0>&-; break; }
+done
+
+local header=""
+builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
+header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+
+# Store gathered logs
+print -rl -- "$header" "${LOGS[@]}" >> "$OUT_DIR/zsh.$$.log"
+
+# vim:ft=zsh:et
