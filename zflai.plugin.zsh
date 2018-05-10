@@ -19,11 +19,10 @@ function zflai_refresh_config {
 # Receives log message, sends it to in-memory
 # log-keeper process.
 #
-# $@ - log message
+# $1 - log message
 function zflai-log {
-    local msg="${(j: :)*}"
     zflai_check_start
-    print -r -- "$msg" >&$ZFLAI_FD
+    print -r -- "$1" >&$ZFLAI_FD
     ZFLAI_LAST_LOG="$EPOCHSECONDS"
 }
 
