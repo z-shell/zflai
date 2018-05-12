@@ -8,7 +8,7 @@
 #
 # No input, no return value (always 0)
 
-builtin print -u$ZFLAI_FD 2>&$ZFLAI_NULL_FD || ZFLAI_FD=0
+builtin print -r -u$ZFLAI_FD 2>&$ZFLAI_NULL_FD || ZFLAI_FD=0
 
 # Running, but dangerously close to idle-exit moment?
 if (( ZFLAI_FD != 0 && ZFLAI_LAST_LOG + ZFLAI_KEEP_ALIVE - 10 < EPOCHSECONDS )); then

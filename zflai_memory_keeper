@@ -9,6 +9,8 @@
 local OUT_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
 [[ ! -d "$OUT_DIR" ]] && command mkdir -p "$OUT_DIR"
 
+builtin cd -q "$OUT_DIR"
+
 local keep_alive_time
 zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
 
