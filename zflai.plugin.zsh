@@ -26,6 +26,23 @@ function zflai-log {
     ZFLAI_LAST_LOG="$EPOCHSECONDS"
 }
 
+# Binary flock command that supports 0 second timeout (zsystem's
+# flock in Zsh ver. < 5.3 doesn't) - util-linux/flock stripped
+# of some things, compiles hopefully everywhere (tested on OS X,
+# Linux, FreeBSD).
+if [[ ! -e "${ZERO:h}/myflock/flock" ]]; then
+    (
+        if zmodload zsh/system 2>/dev/null; then
+            if zsystem flock -t 1 "${ZERO:h}/myflock/LICENSE"; then
+                echo "\033[1;35m""zdharma\033[0m/\033[1;33m""zsh-unique-id\033[0m is building small locking command for you..."
+                make -C "${ZERO:h}/myflock"
+            fi
+        else
+            make -C "${ZERO:h}/myflock"
+        fi
+    )
+fi
+
 # Initial read of configuration 
 zflai_refresh_config
 
