@@ -36,8 +36,8 @@ function -zflai_original_param_name {
     for (( i = 1; i <= len; ++ i )); do
         if [[ "${__tparam_name[i]}" = "_" ]]; then
             ord="${(M)__tparam_name[i+1,-1]##[0-9]##}"
-            (( i += ${#ord} + 1 ))
             __buf+="${(#)ord}"
+            (( i += ${#ord} + 1 ))
         else
             __buf+="${__tparam_name[i]}"
         fi
