@@ -5,19 +5,41 @@
 # for the underline, `_'.
 #
 # $1 - the parameter name to temper
-# $2 - name of parameter to which to store the tempered name
+# $2 - output parameter (its name) for the result
 
 function -zflai_temper_param_name {
     local __param_name="$1" __out_name="$2" __buf=""
 
     [[ -z "${__param_name}" || -z "${__out_name}" ]] && return 1
 
-    len=${#__param_name}
+    integer len=${#__param_name}
     for (( i = 1; i <= len; ++ i )); do
         if [[ "${__param_name[i]}" != [a-zA-Z0-9] ]]; then
             __buf+="_$(( ##${__param_name[i]} ))_"
         else
             __buf+="${__param_name[i]}"
+        fi
+    done
+
+    : "${(P)__out_name::=${__buf}}"
+    return 0
+}
+
+# Opposite to -zflai_temper_param_name, decodes tempered param name.
+#
+# $1 - the tempered parameter name to decode
+# $2 - output parameter (its name) for the result
+function -zflai_original_param_name {
+    local __tparam_name="$1" __out_name="$2" __buf="" ord
+
+    integer len=${#__tparam_name}
+    for (( i = 1; i <= len; ++ i )); do
+        if [[ "${__tparam_name[i]}" = "_" ]]; then
+            ord="${(M)__tparam_name[i+1,-1]##[0-9]##}"
+            (( i += ${#ord} + 1 ))
+            __buf+="${(#)ord}"
+        else
+            __buf+="${__tparam_name[i]}"
         fi
     done
 
