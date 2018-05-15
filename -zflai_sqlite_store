@@ -1,0 +1,80 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# $1 - database - filename of the definition without .def extension
+#                 prefix in keys of DB_DEFS hash
+# $2 - table name
+# $3 - array holding entries to store (its name)
+
+[[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
+
+local __db="$1" __table="$2" __array="$3[@]"
+local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
+local __iobuf __it __sql __vn __val
+integer __have_table_def=0
+
+local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
+local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
+
+local __table_resolved
+-zflai_resolve "$__table" __table_resolved
+
+coproc 2>&1 sqlite3
+
+builtin print -p '.prompt "" ""'
+builtin print -p ".open ${__db_dir}/${__db_file}"
+
+# Prepare related definitions of given table (local to __db, or global)
+local __table_def_param_name
+-zflai_moderate_param_name "${__db}__%__${__table}" __table_def_param_name "tspec_"
+(( ${(P)+__table_def_param_name} )) && __have_table_def=1 || {
+    __table_def_param_name=""
+    -zflai_moderate_param_name "$__table" __table_def_param_name "tspec_"
+    (( ${(P)+__table_def_param_name} )) && __have_table_def=1 || {
+        builtin print "Warning: No definition of table \`${__table}' (in database \`${__db}')" >>! "$CACHE_DIR"/zflai.log
+        __table_def_param_name=""
+    }
+}
+
+# Check that table exists
+__iobuf=""
+builtin print -p ".tables ${__table_resolved}"
+IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
+    # Table doesn't exist, is it defined?
+    [[ -z "$__table_def_param_name" ]] && {
+        builtin print -r "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and"
+        builtin print -r "SQLite: there is no abstract definition for this table (see function \`zflai-ctable')."
+        builtin print -r "SQLite: No data was stored, aborting."
+        builtin print -r "SQLite: The related database file is: $__db_dir/$__db_file."
+        builtin print -p ".exit"
+        return 1
+    } >>! "$LOG_FILE"
+
+    builtin print -r "SQLite: Table \`$__table_resolved' doesn't exist, creating.." >>! "$LOG_FILE"
+
+    local -a keys
+    keys=( "${(okn@)${(Pk@)__table_def_param_name}}" )
+
+    __sql="create table \"${__table_resolved}\"( id integer primary key";
+    for __it in "${keys[@]}"; do
+        __vn="${__table_def_param_name}[$__it]"
+        __val="${(P)__vn}"
+        __it="${__it##[0-9]##-}"
+
+        # Got name in $__it, type in $__val
+        __sql+=", $__it $__val"
+    done
+    __sql+=" );"
+
+    builtin print -r "SQLite: Issuing SQL: $__sql" >>! "$LOG_FILE"
+    builtin print -r -p "$__sql"
+    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "SQLite: $__iobuf" >>! "$LOG_FILE"; }
+}
+
+for __it in "${(P)__array}"; do
+    builtin print "Entry passed to sqlite_store: $__it" >>! "$LOG_FILE"
+done
+
+# Close coprocess
+builtin print -p ".exit"
+
+# vim:ft=zsh:et

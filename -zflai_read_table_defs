@@ -1,0 +1,16 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+
+[[ ! -d "$CACHE_DIR"/tables ]] && return 0
+
+local __d __var_name __serialized
+local -a hsharr
+
+for __d in "$CACHE_DIR"/tables/*.tab(N); do
+    __var_name="${__d:r:t}"
+    __serialized="$(<${__d})"
+    hsharr=( "${(Q@)${(z@)__serialized}}" )
+    typeset -gA "$__var_name"
+    : "${(PAA)__var_name::=${hsharr[@]}}"
+done
+
+# vim:ft=zsh:et

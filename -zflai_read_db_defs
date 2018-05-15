@@ -12,8 +12,6 @@
 # Global hash with data on all storages (databases, files)
 typeset -gA DB_DEFS
 
-local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
-local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
 local -A XDG_MAP
 XDG_MAP=( "%XDG_CONFIG_HOME%" "${XDG_CONFIG_HOME:-$HOME/.config}"
           "%XDG_CACHE_HOME%" "${XDG_CACHE_HOME:-$HOME/.cache}" )
@@ -27,7 +25,5 @@ local key
 for key in "${(k)DB_DEFS[@]}"; do
     DB_DEFS[$key]="${DB_DEFS[$key]//(#b)(%XDG_CONFIG_HOME%|%XDG_CACHE_HOME%)/${XDG_MAP[${match[1]}]}}"
 done
-
-print -rl -- "${(kv)DB_DEFS[@]}"
 
 # vim:ft=zsh:et

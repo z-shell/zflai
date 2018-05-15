@@ -17,9 +17,8 @@ if [[ "$__line" = (#b)[[:blank:]]#"@"([^[:blank:]/]##)[[:blank:]]#/[[:blank:]]#(
 elif [[ "$__line" = (#b)[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
     __var_name="${match[1]}"
     __spec="${match[3]}"
-    print "__var_name:$__var_name, __spec:$__spec"
 else
-    print "Improper zflai-ctable call, didn't recognize syntax" >>! "$CACHE_DIR"/zflai.log
+    print "Improper zflai-ctable call, didn't recognize syntax" >>! "$LOG_FILE"
     return 1
 fi
 
@@ -47,6 +46,6 @@ done
 local -A hsh
 __vn="${__var_name}[@]"
 hsh=( "${(@kv)${(kvP)__vn}}" )
-builtin print -r -- "${(j: :)${(qkv@)hsh}}" >! "$CACHE_DIR"/tables/"$__var_name"
+builtin print -r -- "${(j: :)${(qkv@)hsh}}" >! "$CACHE_DIR"/tables/"$__var_name".tab
 
 # vim:ft=zsh:et

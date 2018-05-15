@@ -1,9 +1,22 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
 # zflai_memory_keeper
 #
 # Receives log lines on stdin, stores them to internal memory buffer
 #
-# stdin  ---LOGS-DATA-->  internal array of lines  ---LOGS-DATA-->  log-file
+# stdin  ---DATA-->  internal array of lines  ---DATA-->  log-file / database
 #
+
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
+
+local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
+local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
+local LOG_FILE="$CACHE_DIR/zflai.log"
+
+print -r -- "== ZFLAI Memory Keeper Starting, PID=${sysparams[pid]} ==" >>! "$LOG_FILE"
+
+-zflai_read_db_defs
+-zflai_read_table_defs
 
 # Use XDG_CACHE_HOME, with default (XDG defined) $HOME/.cache
 local OUT_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
@@ -14,14 +27,21 @@ builtin cd -q "$OUT_DIR"
 local keep_alive_time
 zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
 
-local -a LOGS
+local -a DATA match mbegin mend
 
 typeset -F SECONDS=0
 integer action_time="$SECONDS"
 
 local line cause="exit/${keep_alive_time}s-idle"
+local current_log_db="main-log" current_log_table="log-%ID-%CN"
+local current_db="exec-time" current_table="zshrc-perf"
+local tpe sel_db sel_table
+
 while (( 1 )); do
-    read -r -t 2 line && {
+    IFS='' read -r -t 2 line && {
+        [[ "$line" = ($'\r'|$'\n'|$'\r\n'|"") ]] && continue
+
+        # Special command?
         if [[ "$line" = "!ZFLAI-SPECIAL-CMD: "* ]]; then
             line="${line#\!ZFLAI-SPECIAL-CMD: }"
             case "$line" in
@@ -30,8 +50,46 @@ while (( 1 )); do
                     cause="exit/forbid-race-condition"
                     ;;
             esac
+        # Table definition?
+        elif [[ "${line[1]}" = "T" ]]; then
+            -zflai_learn_table "${line##T[[:blank:]]#}"
+            continue
         else
-            LOGS+=( "$line" )
+            # Log?
+            if [[ "${line[1]}" = "L" ]]; then
+                tpe="log"
+                line="${line##L[[:blank:]]#}"
+                sel_db="$current_log_db"
+                sel_table="$current_log_table"
+            # Record?
+            elif [[ "${line[1]}" = "R" ]]; then
+                tpe="record"
+                line="${line##R[[:blank:]]#}"
+                sel_db="$current_db"
+                sel_table="$current_table"
+            else
+                # TODO: signal error
+            fi
+
+            # This handles database spec, with optional table spec, with optional meta-data vs. data separator (i.e. "::")
+            # Examples:
+            #   @db1 / zplugin-su-%ID :: Hello World
+            #   @db1 / zplugin-su-%ID Hello World
+            #   @db1 :: Hello World
+            #   @db1 Hello World
+            if [[ "$line" = (#b)[[:blank:]]#"@"([^[:blank:]]##)[[:blank:]](#c0,1)([[:blank:]]#/[[:blank:]]#([^[:blank:]]##)[[:blank:]](#c0,1)|)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
+                sel_db="${match[1]}"
+                sel_table="${match[3]:-$sel_table}"
+                line="${match[5]}"
+            # No database spec, just table spec
+            # Examples:
+            # zplugin-su-%ID :: Hello World
+            elif [[ "$line" = (#b)[[:blank:]]#([^[:blank:]]##)[[:blank:]]#::[[:blank:]](#c0,1)(*) ]]; then
+                sel_table="${match[1]}"
+                line="${match[2]}"
+            fi
+
+            DATA+=( "$tpe::$sel_db::$sel_table | $line" )
             action_time="$SECONDS"
         fi
     }
@@ -41,11 +99,7 @@ while (( 1 )); do
     (( (SECONDS - action_time) >= keep_alive_time )) && { builtin exec 0>&-; break; }
 done
 
-local header=""
-builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
-header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+-zflai_store
 
-# Store gathered logs
-print -rl -- "$header" "${LOGS[@]}" >> "$OUT_DIR/zsh.$$.log"
 
 # vim:ft=zsh:et

@@ -1,0 +1,57 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# -zflai_store
+#
+# Performs a store operation, memory-to-disk basically, or in other words
+# makes data in RAM persistent. The data has multiple traits already resolved:
+# - target database
+# - target table
+# - type (log or record)
+#
+# It still needs resolution of the special keywords: %ID, %CN, %ESECS.
+
+local entry tpe sel_db sel_table input priv_arr_name db_string
+local -A priv_arr_map
+integer priv_arr_index=0 arr_len
+
+for entry in "${DATA[@]}"; do
+    if [[ "$entry" = (#b)[\ $'\t']#([^:]##)::([^:]##)::([^\ $'\t']##)[\ $'\t']##\|[\ $'\t']##(*) ]]; then
+        tpe="${match[1]}" sel_db="${match[2]}" sel_table="${match[3]}" input="${match[4]}"
+        if [[ -n "${priv_arr_map[${sel_db}__%__${sel_table}]}" ]]; then
+            priv_arr_name="${priv_arr_map[${sel_db}__%__${sel_table}]}"
+        else
+            (( ++ priv_arr_index ))
+            priv_arr_name="SUB_DATA_${priv_arr_index}"
+            local -a "$priv_arr_name"
+            priv_arr_map[${sel_db}__%__${sel_table}]="$priv_arr_name"
+        fi 
+        arr_len="${(P)#priv_arr_name}"
+        # Append is fast on recent Zshells (uses realloc)
+        priv_arr_name="${priv_arr_name}[$(( arr_len + 1 ))]"
+        : "${(P)priv_arr_name::=$entry}"
+    fi
+done
+
+integer idx
+for (( idx=1; idx <= priv_arr_index; ++ idx )); do
+    priv_arr_name="SUB_DATA_${idx}"
+    db_string="${(k)priv_arr_map[(r)$priv_arr_name]}"
+    sel_db="${db_string%%__%__*}"
+    sel_table="${db_string##*__%__}"
+
+    [[ "$db_string" = [[:space:]]# ]] && { print "ERROR: didn't find db_string for $priv_arr_name"; continue; }
+
+    if [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "sqlite3" ]]; then
+        -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name"
+    elif [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "file" ]]; then
+        -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name"
+    elif [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "mysql" ]]; then
+        -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name"
+    fi
+done
+
+local header=""
+builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
+header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+
+# vim:ft=zsh:et

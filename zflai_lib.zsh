@@ -6,13 +6,14 @@
 #
 # $1 - the parameter name to moderate
 # $2 - output parameter (its name) for the result
+# $3 - prefix to be applied to the moderated param name
 
 function -zflai_moderate_param_name {
-    local __param_name="$1" __out_name="$2" __buf=""
+    local __param_name="$1" __out_name="$2" __pfx="$3" __buf=""
 
     [[ -z "${__param_name}" || -z "${__out_name}" ]] && return 1
 
-    integer len=${#__param_name}
+    integer len=${#__param_name} i
     for (( i = 1; i <= len; ++ i )); do
         if [[ "${__param_name[i]}" != [a-zA-Z0-9] ]]; then
             __buf+="_$(( ##${__param_name[i]} ))_"
@@ -21,7 +22,7 @@ function -zflai_moderate_param_name {
         fi
     done
 
-    : "${(P)__out_name::=${__buf}}"
+    : "${(P)__out_name::=${__pfx}${__buf}}"
     return 0
 }
 
@@ -29,8 +30,12 @@ function -zflai_moderate_param_name {
 #
 # $1 - the moderated parameter name to decode
 # $2 - output parameter (its name) for the result
+# $3 - prefix to remove from input or output parameter (the same effect,
+#      implementation removes the prefix from input data)
 function -zflai_original_param_name {
-    local __tparam_name="$1" __out_name="$2" __buf="" ord
+    local __tparam_name="$1" __out_name="$2" __pfx="$3" __buf="" ord
+
+    __tparam_name="${__tparam_name#$__pfx}"
 
     integer len=${#__tparam_name}
     for (( i = 1; i <= len; ++ i )); do
@@ -46,5 +51,16 @@ function -zflai_original_param_name {
     : "${(P)__out_name::=${__buf}}"
     return 0
 }
+
+# $1 - table name with possible %ID, %CN
+# $2 - name of output parameter (default: REPLY)
+function -zflai_resolve {
+    local __table="$1" __var_name="${2:-REPLY}"
+    __table="${__table//\%ID/$ZUID_ID}"
+    __table="${__table//\%CN/$ZUID_CODENAME}"
+    : "${(P)__var_name::=$__table}"
+}
+
+typeset -g ZFLAI_LIBS_SOURCED=1
 
 # vim:ft=zsh:et:tw=72
