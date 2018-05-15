@@ -41,4 +41,12 @@ for __f in "${__fields[@]}"; do
     : "${(P)__vn::=${__two[2]}}"
 done
 
+[[ ! -d "$CACHE_DIR"/tables ]] && command mkdir -p "$CACHE_DIR"/tables
+
+# Serialize to persistent cache
+local -A hsh
+__vn="${__var_name}[@]"
+hsh=( "${(@kv)${(kvP)__vn}}" )
+builtin print -r -- "${(j: :)${(qkv@)hsh}}" >! "$CACHE_DIR"/tables/"$__var_name"
+
 # vim:ft=zsh:et
