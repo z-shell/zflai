@@ -4,10 +4,10 @@
 # of this range characters are replaced by "_${ord-code}_", e.g. _95_
 # for the underline, `_'.
 #
-# $1 - the parameter name to temper
+# $1 - the parameter name to moderate
 # $2 - output parameter (its name) for the result
 
-function -zflai_temper_param_name {
+function -zflai_moderate_param_name {
     local __param_name="$1" __out_name="$2" __buf=""
 
     [[ -z "${__param_name}" || -z "${__out_name}" ]] && return 1
@@ -25,9 +25,9 @@ function -zflai_temper_param_name {
     return 0
 }
 
-# Opposite to -zflai_temper_param_name, decodes tempered param name.
+# Opposite to -zflai_moderate_param_name, decodes moderateed param name.
 #
-# $1 - the tempered parameter name to decode
+# $1 - the moderated parameter name to decode
 # $2 - output parameter (its name) for the result
 function -zflai_original_param_name {
     local __tparam_name="$1" __out_name="$2" __buf="" ord

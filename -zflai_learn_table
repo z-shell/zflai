@@ -1,0 +1,33 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# $1 - input line with table specification
+#
+
+local __line="$1" __var_name __vn __spec
+local -a match mbegin mend
+
+# Examples:
+#   @dbs / zplugin-su-%ID :: timestamp:integer / exec-ms:integer
+#   @dbs / zplugin-su-%ID timestamp:integer / exec-ms:integer
+if [[ "$__line" = (#b)[[:blank:]]#"@"([^[:blank:]/]##)[[:blank:]]#/[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
+    __var_name="${match[1]}__%__${match[2]}"
+    __spec="${match[4]}"
+
+    -zflai_moderate_param_name "$__var_name" __var_name
+    typeset -gA "tspec_${__var_name}"
+
+    local -a __fields __two
+    __fields=( "${(@s:/:)__spec}" )
+
+    local __f
+    integer __idx=0
+    for __f in "${__fields[@]}"; do
+        __f="${${__f##[[:blank:]]##}%%[[:blank:]]##}"
+        __two=( "${(@s,:,)__f}" )
+        (( ++ __idx ))
+        __vn="tspec_${__var_name}[${__idx}-${__two[1]}]"
+        : "${(P)__vn::=${__two[2]}}"
+    done
+fi
+
+# vim:ft=zsh:et
