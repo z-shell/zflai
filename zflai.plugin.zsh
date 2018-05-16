@@ -1,4 +1,3 @@
-ZERO="${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}"
 # Copyright (c) 2018 Sebastian Gniazdowski
 
 0="${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}"
