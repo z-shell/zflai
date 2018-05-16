@@ -63,4 +63,8 @@ function -zflai_resolve {
 
 typeset -g ZFLAI_LIBS_SOURCED=1
 
+function -zflai_coproc_error_fetch {
+    local __iobuf
+    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
+}
 # vim:ft=zsh:et:tw=72

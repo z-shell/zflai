@@ -29,7 +29,7 @@ local __table_def_param_name
 (( ${(P)+__table_def_param_name} )) && __have_table_def=1 || {
     __table_def_param_name=""
     -zflai_moderate_param_name "$__table" __table_def_param_name "tspec_"
-    (( ${(P)+__table_def_param_name} )) && __have_table_def=1 || {
+    (( ${(P)+__table_def_param_name} )) && __have_table_def=2 || {
         builtin print "Warning: No definition of table \`${__table}' (in database \`${__db}')" >>! "$CACHE_DIR"/zflai.log
         __table_def_param_name=""
     }
@@ -67,7 +67,7 @@ IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
 
     builtin print -r "SQLite: Issuing SQL: $__sql" >>! "$LOG_FILE"
     builtin print -r -p "$__sql"
-    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "SQLite: $__iobuf" >>! "$LOG_FILE"; }
+    -zflai_coproc_error_fetch "SQLite"
 }
 
 for __it in "${(P)__array}"; do
