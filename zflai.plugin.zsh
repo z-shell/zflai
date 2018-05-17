@@ -9,7 +9,7 @@ autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table \
             -zflai_read_ini_file -zflai_read_db_defs -zflai_read_table_defs \
             -zflai_store -zflai_sqlite_store
 
-typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KEEP_ALIVE=45
+typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KEEP_ALIVE=45 ZFLAI_STORE_INTERVAL=30
 
 # Loads configuration from zstyle database into
 # global variables, for direct and quicker access.
@@ -17,9 +17,9 @@ typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KE
 # No input, no return value (always true).
 function zflai_refresh_config {
     builtin zstyle -s ":plugin:zflai" keep_alive_time ZFLAI_KEEP_ALIVE || ZFLAI_KEEP_ALIVE=45
+    builtin zstyle -s ":plugin:zflai" store_interval ZFLAI_STORE_INTERVAL || ZFLAI_STORE_INTERVAL=30
     return 0
 }
-
 
 # Receives log message, sends it to in-memory
 # log-keeper process.

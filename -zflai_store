@@ -12,7 +12,7 @@
 
 local entry tpe sel_db sel_table timestamp input priv_arr_name db_string cause="$1"
 local -A priv_arr_map
-integer priv_arr_index=0 arr_len
+integer priv_arr_index=0 arr_len entry_count=0
 
 for entry in "${DATA[@]}"; do
     if [[ "$entry" = (#b)[\ $'\t']#([^:]##)::([^:]##)::([^:]##)::([0-9]##)[\ $'\t']##\|[\ $'\t']##(*) ]]; then
@@ -29,6 +29,7 @@ for entry in "${DATA[@]}"; do
         # Append is fast on recent Zshells (uses realloc)
         priv_arr_name="${priv_arr_name}[$(( arr_len + 1 ))]"
         : "${(P)priv_arr_name::=$entry}"
+        (( ++ entry_count ))
     fi
 done
 
@@ -37,7 +38,7 @@ DATA=()
 
 local header=""
 builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
-header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+header="------ ↓ [$header] MEMORY TO DISK #$entry_count (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
 -zflai_run_log "$header"
 
 integer idx
