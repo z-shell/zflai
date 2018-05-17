@@ -71,7 +71,7 @@ for __it in "${(P)__array}"; do
         splitted=( "${(@s:|:)match[2]}" )
         __sql="INSERT INTO \"${__table_resolved}\" values( NULL, $__ts "
         for __it2 in "${splitted[@]}"; do
-            __sql+=", \"${__it2//\"/\\\"}\""
+            __sql+=", \"${${${__it2# }% }//\"/\\\"}\""
         done
         __sql+=" );"
         builtin print -r -p -- "$__sql"
