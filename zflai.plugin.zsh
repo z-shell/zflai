@@ -16,8 +16,8 @@ typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KE
 #
 # No input, no return value (always true).
 function zflai_refresh_config {
-    builtin zstyle -s ":plugin:zflai" keep_alive_time ZFLAI_KEEP_ALIVE || ZFLAI_KEEP_ALIVE=45
-    builtin zstyle -s ":plugin:zflai" store_interval ZFLAI_STORE_INTERVAL || ZFLAI_STORE_INTERVAL=30
+    builtin zstyle -s ":plugin:zflai:dj" keep_alive_time ZFLAI_KEEP_ALIVE || ZFLAI_KEEP_ALIVE=45
+    builtin zstyle -s ":plugin:zflai:dj" store_interval ZFLAI_STORE_INTERVAL || ZFLAI_STORE_INTERVAL=30
     return 0
 }
 

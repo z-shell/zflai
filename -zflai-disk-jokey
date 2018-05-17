@@ -46,8 +46,8 @@ builtin cd -q "$CACHE_DIR"
 -zflai_read_table_defs
 
 local keep_alive_time store_interval
-builtin zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
-builtin zstyle -s ":plugin:zflai" store_interval store_interval || store_interval=30
+builtin zstyle -s ":plugin:zflai:dj" keep_alive_time keep_alive_time || keep_alive_time=45
+builtin zstyle -s ":plugin:zflai:dj" store_interval store_interval || store_interval=30
 
 local -a DATA
 
