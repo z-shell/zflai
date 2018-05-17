@@ -22,10 +22,8 @@ fi
 # Running (not much idle, that was checked above) ?
 (( ZFLAI_FD != 0 )) && return 0
 
-# Not running, or closed to prevent race condition - start
-# a new agent. The ARGV0 assignment will not work untill
-# zflai_memory_keeper is a command not a function.
-builtin exec {ZFLAI_FD}> >(ARGV0=zflai-memory-keeper zflai_memory_keeper "$ZUID_ID" "$ZUID_CODENAME") || return 1
+# Not running, or closed to prevent race condition - start a new agent
+builtin exec {ZFLAI_FD}> >(-zflai-disk-jokey "$ZUID_ID" "$ZUID_CODENAME") || return 1
 
 return 0
 

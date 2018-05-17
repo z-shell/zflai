@@ -5,9 +5,9 @@ typeset -g ZFLAI_SRC_DIR="${0:h}"
 
 zmodload zsh/datetime
 zmodload zsh/system
-autoload -- zflai_check_start zflai_memory_keeper \
+autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table \
             -zflai_read_ini_file -zflai_read_db_defs -zflai_read_table_defs \
-            -zflai_learn_table -zflai_store -zflai_sqlite_store
+            -zflai_store -zflai_sqlite_store
 
 typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KEEP_ALIVE=45
 
@@ -26,13 +26,13 @@ function zflai_refresh_config {
 #
 # $1 - log message
 function zflai-log {
-    zflai_check_start
+    -zflai_check_start
     print -u $ZFLAI_FD -r -- "L $1"
     ZFLAI_LAST_ACTION="$EPOCHSECONDS"
 }
 
 function zflai-ctable {
-    zflai_check_start
+    -zflai_check_start
     print -u $ZFLAI_FD -r -- "T $1"
     ZFLAI_LAST_ACTION="$EPOCHSECONDS"
 }
