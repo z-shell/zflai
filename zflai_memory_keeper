@@ -89,7 +89,7 @@ while (( 1 )); do
                 line="${match[2]}"
             fi
 
-            DATA+=( "$tpe::$sel_db::$sel_table | $line" )
+            DATA+=( "$tpe::$sel_db::$sel_table::${EPOCHSECONDS:-0} | $line" )
             action_time="$SECONDS"
         fi
     }

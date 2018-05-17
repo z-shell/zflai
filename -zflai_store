@@ -15,8 +15,8 @@ local -A priv_arr_map
 integer priv_arr_index=0 arr_len
 
 for entry in "${DATA[@]}"; do
-    if [[ "$entry" = (#b)[\ $'\t']#([^:]##)::([^:]##)::([^\ $'\t']##)[\ $'\t']##\|[\ $'\t']##(*) ]]; then
-        tpe="${match[1]}" sel_db="${match[2]}" sel_table="${match[3]}" input="${match[4]}"
+    if [[ "$entry" = (#b)[\ $'\t']#([^:]##)::([^:]##)::([^:]##)::([0-9]##)[\ $'\t']##\|[\ $'\t']##(*) ]]; then
+        tpe="${match[1]}" sel_db="${match[2]}" sel_table="${match[3]}" timestamp="${match[4]}" input="${match[5]}"
         if [[ -n "${priv_arr_map[${sel_db}__%__${sel_table}]}" ]]; then
             priv_arr_name="${priv_arr_map[${sel_db}__%__${sel_table}]}"
         else

@@ -9,7 +9,7 @@
 
 local __db="$1" __table="$2" __array="$3[@]"
 local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
-local __iobuf __it __sql __vn __val
+local __iobuf __it __it2 __sql __vn __val __ts
 integer __have_table_def=0
 
 local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
@@ -41,8 +41,8 @@ builtin print -p ".tables ${__table_resolved}"
 IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     # Table doesn't exist, is it defined?
     [[ -z "$__table_def_param_name" ]] && {
-        builtin print -r "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and"
-        builtin print -r "SQLite: there is no abstract definition for this table (see function \`zflai-ctable')."
+        builtin print -r "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and there is no"
+        builtin print -r "SQLite: abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
         builtin print -r "SQLite: No data was stored, aborting."
         builtin print -r "SQLite: The related database file is: $__db_dir/$__db_file."
         builtin print -p ".exit"
@@ -54,7 +54,7 @@ IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     local -a keys
     keys=( "${(okn@)${(Pk@)__table_def_param_name}}" )
 
-    __sql="create table \"${__table_resolved}\"( id integer primary key";
+    __sql="create table \"${__table_resolved}\"( id integer primary key autoincrement";
     for __it in "${keys[@]}"; do
         __vn="${__table_def_param_name}[$__it]"
         __val="${(P)__vn}"
@@ -70,8 +70,19 @@ IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     -zflai_coproc_error_fetch "SQLite"
 }
 
+local -a splitted
 for __it in "${(P)__array}"; do
-    builtin print "Entry passed to sqlite_store: $__it" >>! "$LOG_FILE"
+    if [[ "$__it" = (#b)[[:blank:]]#[^:]##::[^:]##::[^:]##::([^[:blank:]\|]##)[[:blank:]]#\|[[:blank:]](#c0,1)(*) ]]; then
+        __ts="${match[1]}"
+        splitted=( "${(@s:|:)match[2]}" )
+        __sql="INSERT INTO \"${__table_resolved}\" values( NULL, $__ts "
+        for __it2 in "${splitted[@]}"; do
+            __sql+=", \"${__it2//\"/\\\"}\""
+        done
+        __sql+=" );"
+        builtin print -r -p -- "$__sql"
+        -zflai_coproc_error_fetch
+    fi
 done
 
 # Close coprocess
