@@ -7,22 +7,39 @@
 # stdin  ---DATA-->  internal array of lines  ---DATA-->  log-file / database
 #
 
+# It's a background process, can afford logging
+# to a file
+function -zflai_run_log {
+    -zflai_format_ts
+    [[ "$*" = *${REPLY%%-*}* ]] && print -r -- "$*" >>! "$LOG_FILE" || print -r -- "$REPLY $*" >>! "$LOG_FILE"
+}
+
+# No way around the 1 second waiting, e.g. SQLite
+# can respond not enough fast for -t 0, but as it
+# is done in background process, it's not a drama
+function -zflai_coproc_error_fetch {
+    local __iobuf
+    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
+}
+
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
+local REPLY
 local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
 local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
 local LOG_FILE="$CACHE_DIR/zflai.log"
+[[ ! -d "$CONFIG_DIR" ]] && command mkdir -p "$CONFIG_DIR"
+[[ ! -d "$CACHE_DIR" ]] && command mkdir -p "$CACHE_DIR"
+[[ ! -d "$CACHE_DIR"/tables ]] && command mkdir -p "$CACHE_DIR"/tables
+builtin cd -q "$CACHE_DIR"
 
-print -r -- "== ZFLAI Memory Keeper Starting, PID=${sysparams[pid]} ==" >>! "$LOG_FILE"
+[[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
+-zflai_run_log ""
+-zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]} =="
 -zflai_read_db_defs
+-zflai_learn_table "log-%ID-%CN :: timestamp : datetime / message : varchar(288)"
 -zflai_read_table_defs
-
-# Use XDG_CACHE_HOME, with default (XDG defined) $HOME/.cache
-local OUT_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
-[[ ! -d "$OUT_DIR" ]] && command mkdir -p "$OUT_DIR"
-
-builtin cd -q "$OUT_DIR"
 
 local keep_alive_time
 zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
@@ -99,7 +116,7 @@ while (( 1 )); do
     (( (SECONDS - action_time) >= keep_alive_time )) && { builtin exec 0>&-; break; }
 done
 
--zflai_store
+-zflai_store "$cause"
 
 
 # vim:ft=zsh:et

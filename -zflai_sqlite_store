@@ -5,6 +5,8 @@
 # $2 - table name
 # $3 - array holding entries to store (its name)
 
+setopt localtraps
+
 [[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
 local __db="$1" __table="$2" __array="$3[@]"
@@ -12,12 +14,10 @@ local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db
 local __iobuf __it __it2 __sql __vn __val __ts
 integer __have_table_def=0
 
-local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
-local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
-
 local __table_resolved
 -zflai_resolve "$__table" __table_resolved
 
+trap "builtin print -p \".exit\"" EXIT
 coproc 2>&1 sqlite3
 
 builtin print -p '.prompt "" ""'
@@ -30,7 +30,7 @@ local __table_def_param_name
     __table_def_param_name=""
     -zflai_moderate_param_name "$__table" __table_def_param_name "tspec_"
     (( ${(P)+__table_def_param_name} )) && __have_table_def=2 || {
-        builtin print "Warning: No definition of table \`${__table}' (in database \`${__db}')" >>! "$CACHE_DIR"/zflai.log
+        -zflai_run_log "SQLite: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
         __table_def_param_name=""
     }
 }
@@ -41,15 +41,15 @@ builtin print -p ".tables ${__table_resolved}"
 IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     # Table doesn't exist, is it defined?
     [[ -z "$__table_def_param_name" ]] && {
-        builtin print -r "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and there is no"
-        builtin print -r "SQLite: abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
-        builtin print -r "SQLite: No data was stored, aborting."
-        builtin print -r "SQLite: The related database file is: $__db_dir/$__db_file."
+        -zflai_run_log "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and there is no"
+        -zflai_run_log "SQLite: abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
+        -zflai_run_log "SQLite: No data was stored, aborting."
+        -zflai_run_log "SQLite: The related database file is: $__db_dir/$__db_file."
         builtin print -p ".exit"
         return 1
-    } >>! "$LOG_FILE"
+    }
 
-    builtin print -r "SQLite: Table \`$__table_resolved' doesn't exist, creating.." >>! "$LOG_FILE"
+    -zflai_run_log "SQLite: Table \`$__table_resolved' doesn't exist, creating.."
 
     local -a keys
     keys=( "${(okn@)${(Pk@)__table_def_param_name}}" )
@@ -65,7 +65,7 @@ IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     done
     __sql+=" );"
 
-    builtin print -r "SQLite: Issuing SQL: $__sql" >>! "$LOG_FILE"
+    -zflai_run_log "SQLite: Issuing SQL: $__sql"
     builtin print -r -p "$__sql"
     -zflai_coproc_error_fetch "SQLite"
 }
@@ -81,11 +81,10 @@ for __it in "${(P)__array}"; do
         done
         __sql+=" );"
         builtin print -r -p -- "$__sql"
-        -zflai_coproc_error_fetch
+        -zflai_coproc_error_fetch "SQLite"
+    else
+        -zflai_run_log "Incorrect entry passed to SQLite store (skipped): $__it"
     fi
 done
-
-# Close coprocess
-builtin print -p ".exit"
 
 # vim:ft=zsh:et

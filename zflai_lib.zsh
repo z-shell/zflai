@@ -61,10 +61,11 @@ function -zflai_resolve {
     : "${(P)__var_name::=$__table}"
 }
 
+# $REPLY - formatted timestamp, for log
+function -zflai_format_ts {
+    builtin strftime -s REPLY '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
+}
+
 typeset -g ZFLAI_LIBS_SOURCED=1
 
-function -zflai_coproc_error_fetch {
-    local __iobuf
-    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
-}
 # vim:ft=zsh:et:tw=72

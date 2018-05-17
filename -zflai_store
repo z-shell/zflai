@@ -10,7 +10,7 @@
 #
 # It still needs resolution of the special keywords: %ID, %CN, %ESECS.
 
-local entry tpe sel_db sel_table input priv_arr_name db_string
+local entry tpe sel_db sel_table timestamp input priv_arr_name db_string cause="$1"
 local -A priv_arr_map
 integer priv_arr_index=0 arr_len
 
@@ -32,6 +32,11 @@ for entry in "${DATA[@]}"; do
     fi
 done
 
+local header=""
+builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
+header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+-zflai_run_log "$header"
+
 integer idx
 for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     priv_arr_name="SUB_DATA_${idx}"
@@ -48,10 +53,8 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     elif [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "mysql" ]]; then
         -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name"
     fi
-done
 
-local header=""
-builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
-header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
+    unset "$priv_arr_name"
+done
 
 # vim:ft=zsh:et
