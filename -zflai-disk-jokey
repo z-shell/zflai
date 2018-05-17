@@ -11,6 +11,7 @@
 # to a file
 function -zflai_run_log {
     -zflai_format_ts
+    [[ -z "$1" ]] && REPLY=""
     [[ "$*" = *${REPLY%%-*}* ]] && print -r -- "$*" >>! "$LOG_FILE" || print -r -- "$REPLY $*" >>! "$LOG_FILE"
 }
 
