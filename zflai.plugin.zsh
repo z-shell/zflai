@@ -5,7 +5,7 @@ typeset -g ZFLAI_SRC_DIR="${0:h}"
 
 zmodload zsh/datetime
 zmodload zsh/system
-autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table \
+autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table -zflai_get_abstract_table_for \
             -zflai_read_ini_file -zflai_read_db_defs -zflai_read_table_defs \
             -zflai_store -zflai_sqlite_store
 

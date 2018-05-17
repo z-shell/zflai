@@ -12,7 +12,9 @@ setopt localtraps
 local __db="$1" __table="$2" __array="$3[@]"
 local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
 local __iobuf __it __it2 __sql __vn __val __ts
+
 integer __have_table_def=0
+local __table_def_param_name
 
 local __table_resolved
 -zflai_resolve "$__table" __table_resolved
@@ -23,17 +25,9 @@ coproc 2>&1 sqlite3
 builtin print -p '.prompt "" ""'
 builtin print -p ".open ${__db_dir}/${__db_file}"
 
-# Prepare related definitions of given table (local to __db, or global)
-local __table_def_param_name
--zflai_moderate_param_name "${__db}__%__${__table}" __table_def_param_name "tspec_"
-(( ${(P)+__table_def_param_name} )) && __have_table_def=1 || {
-    __table_def_param_name=""
-    -zflai_moderate_param_name "$__table" __table_def_param_name "tspec_"
-    (( ${(P)+__table_def_param_name} )) && __have_table_def=2 || {
-        -zflai_run_log "SQLite: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
-        __table_def_param_name=""
-    }
-}
+# Search for definition of the target table
+-zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def || \
+    -zflai_run_log "SQLite: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
 
 # Check that table exists
 __iobuf=""
