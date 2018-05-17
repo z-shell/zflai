@@ -90,7 +90,8 @@ while (( 1 )); do
                 sel_db="$current_db"
                 sel_table="$current_table"
             else
-                # TODO: signal error
+                -zflai_run_log "DJ: Unknown request received: \`$line'"
+                continue
             fi
 
             # This handles database spec, with optional table spec, with optional meta-data vs. data separator (i.e. "::")
