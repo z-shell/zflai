@@ -19,12 +19,15 @@ function -zflai_run_log {
 # is done in background process, it's not a drama
 function -zflai_coproc_error_fetch {
     local __iobuf
-    IFS='' read -r -t 1 -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
+    IFS='' read -r -t ${2:-1} -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
 }
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
-local REPLY
+local REPLY MATCH
+integer MBEGIN MEND
+local -a match mbegin mend
+local ZUID_ID="$1" ZUID_CODENAME="$2"
 local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
 local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
 local LOG_FILE="$CACHE_DIR/zflai.log"
@@ -44,7 +47,7 @@ builtin cd -q "$CACHE_DIR"
 local keep_alive_time
 zstyle -s ":plugin:zflai" keep_alive_time keep_alive_time || keep_alive_time=45
 
-local -a DATA match mbegin mend
+local -a DATA
 
 typeset -F SECONDS=0
 integer action_time="$SECONDS"

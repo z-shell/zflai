@@ -81,7 +81,7 @@ for __it in "${(P)__array}"; do
         done
         __sql+=" );"
         builtin print -r -p -- "$__sql"
-        -zflai_coproc_error_fetch "SQLite"
+        -zflai_coproc_error_fetch "SQLite" 0
     else
         -zflai_run_log "Incorrect entry passed to SQLite store (skipped): $__it"
     fi

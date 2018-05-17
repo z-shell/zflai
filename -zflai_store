@@ -32,6 +32,9 @@ for entry in "${DATA[@]}"; do
     fi
 done
 
+# Clear, as data has been redistributed to SUB_DATA_* arrays
+DATA=()
+
 local header=""
 builtin strftime -s header '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
 header="------ ↓ [$header] MEMORY TO DISK (agent: ${sysparams[pid]}, save cause: $cause) ↓ ------"
