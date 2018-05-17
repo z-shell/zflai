@@ -42,7 +42,7 @@ builtin cd -q "$CACHE_DIR"
 -zflai_run_log ""
 -zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]}, ID=$ZUID_ID/$ZUID_CODENAME =="
 -zflai_read_db_defs
--zflai_learn_table "log-%ID-%CN :: timestamp : datetime / message : varchar(288)"
+-zflai_learn_table "default-%ID-%CN :: timestamp:datetime / message:varchar(288)"
 -zflai_read_table_defs
 
 local keep_alive_time store_interval
@@ -55,8 +55,8 @@ typeset -F SECONDS=0
 integer action_time="$SECONDS" store_time="$SECONDS"
 
 local line cause="exit/${keep_alive_time}s-idle"
-local current_log_db="main-log" current_log_table="log-%ID-%CN"
-local current_db="exec-time" current_table="zshrc-perf"
+local current_log_db="default" current_log_table="default-%ID-%CN"
+local current_db="perf-record" current_table="performance-%ID-%CN"
 local tpe sel_db sel_table
 
 while (( 1 )); do
