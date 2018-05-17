@@ -36,7 +36,7 @@ builtin cd -q "$CACHE_DIR"
 [[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
 -zflai_run_log ""
--zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]} =="
+-zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]}, ID=$ZUID_ID/$ZUID_CODENAME =="
 -zflai_read_db_defs
 -zflai_learn_table "log-%ID-%CN :: timestamp : datetime / message : varchar(288)"
 -zflai_read_table_defs
