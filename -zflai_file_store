@@ -1,0 +1,55 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+# 
+# $1 - target database ($sel_db)
+# $2 - target table ($sel_table) 
+# $3 - name of array that holds entries
+
+setopt localtraps
+
+[[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
+
+local __db="$1" __table="$2" __array="$3[@]"
+local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
+local __it __it2 __vn __ts __text
+
+local __table_def_param_name
+integer __have_table_def=0 idx coidx=1
+
+local __table_resolved
+-zflai_resolve "$__table" __table_resolved
+
+__db_file="${__db_file//\%TABLE\%/$__table_resolved}"
+
+local -a splitted keys
+
+# Search for definition of the target table
+-zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def && \
+    keys=( "${(okn@)${(Pk@)__table_def_param_name}}" ) || \
+    -zflai_run_log "File-Storage: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
+
+# Skip timestamp from columns / hash keys
+local first_key="${keys[1]}"
+[[ "$first_key" = *time* ]] && shift keys || coidx=0
+
+for __it in "${(P)__array}"; do
+    splitted=( "${(@s:|:)__it}" )
+    __ts="${${(@s.::.)splitted[1]}[-1]}"
+    shift splitted
+    splitted=( "${splitted[@]//(#m)*/${${MATCH# }% }}" )
+
+    [[ "$first_key" = *time* ]] && __text="${__ts% }: " || __text=""
+    if (( __have_table_def )); then
+        for __it2 in "${keys[@]}"; do
+            idx="${(M)__it2##[0-9]##}"
+            __text+="${splitted[idx-coidx]} "
+        done
+        __text="${__text% }"
+        (( idx-coidx < ${#splitted} )) && __text+=" [${(j:,:)splitted[idx+1-coidx,-1]}]"
+    else
+        __text+="${(j: :)splitted}"
+    fi
+
+    builtin print -r -- "$__text" >>! "$__db_file"
+done
+
+# vim:ft=zsh:et

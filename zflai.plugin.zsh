@@ -7,7 +7,7 @@ zmodload zsh/datetime
 zmodload zsh/system
 autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table -zflai_get_abstract_table_for \
             -zflai_read_ini_file -zflai_read_db_defs -zflai_read_table_defs \
-            -zflai_store -zflai_sqlite_store
+            -zflai_store -zflai_sqlite_store -zflai_file_store
 
 typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KEEP_ALIVE=45 ZFLAI_STORE_INTERVAL=30
 
