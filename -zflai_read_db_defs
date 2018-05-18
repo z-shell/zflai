@@ -3,7 +3,7 @@
 # Loads databases' definitions into single hash whose keys are
 # constructed as follows:
 #
-# - DB_DEFS[${sel_db}_<access>_type]="file"
+# - DB_DEFS[${sel_db}_<access>_engine]="file"
 # - DB_DEFS[${sel_db}_<hooks>_on_open]='prompt "" ""'
 #
 # <access>, <hooks> denote sections in ini file and are followed

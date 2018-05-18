@@ -32,7 +32,7 @@ for entry in "${DATA[@]}"; do
 
         (( ++ entry_count ))
 
-        count_hash[${DB_DEFS[${sel_db}_<access>_type]}]=$(( ${count_hash[${DB_DEFS[${sel_db}_<access>_type]}]:-0} + 1 ))
+        count_hash[${DB_DEFS[${sel_db}_<access>_engine]}]=$(( ${count_hash[${DB_DEFS[${sel_db}_<access>_engine]}]:-0} + 1 ))
     fi
 done
 
@@ -59,11 +59,11 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
 
     [[ "$db_string" = [[:space:]]# ]] && { print "ERROR: didn't find db_string for $priv_arr_name"; continue; }
 
-    if [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "sqlite3" ]]; then
+    if [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "sqlite3" ]]; then
         -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name"
-    elif [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "file" ]]; then
+    elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "file" ]]; then
         -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name"
-    elif [[ "${DB_DEFS[${sel_db}_<access>_type]}" = "mysql" ]]; then
+    elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "mysql" ]]; then
         -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name"
     fi
 
