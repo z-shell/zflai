@@ -63,6 +63,8 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
         -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "file" ]]; then
         -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name"
+    elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "elastic-search" ]]; then
+        -zflai_elasticsearch_store "$sel_db" "$sel_table" "$priv_arr_name"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "mysql" ]]; then
         -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name"
     fi
