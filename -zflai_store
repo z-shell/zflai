@@ -71,7 +71,7 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     [[ "$db_string" = [[:space:]]# ]] && { print "ERROR: didn't find db_string for $priv_arr_name"; continue; }
 
     if [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "sqlite3" ]]; then
-        -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name"
+        -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name" "$sel_table_resolved"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "file" ]]; then
         -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name" "$sel_table_resolved"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "elastic-search" ]]; then

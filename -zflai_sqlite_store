@@ -9,21 +9,35 @@ setopt localtraps
 
 [[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
-local __db="$1" __table="$2" __array="$3[@]"
+local __db="$1" __table="$2" __array="$3[@]" __table_resolved="$4"
 local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
-local __iobuf __it __it2 __sql __vn __val __ts
+local __iobuf __it __it2 __sql __vn __val __ts __tab=$'\t' __nl=$'\n'
+local -a __arr
 
 integer __have_table_def=0
 local __table_def_param_name
 
-local __table_resolved
--zflai_resolve "$__table" __table_resolved
-
 trap "builtin print -p \".exit\"" EXIT
 coproc 2>&1 sqlite3
 
-builtin print -p '.prompt "" ""'
-builtin print -p ".open ${__db_dir}/${__db_file}"
+builtin print -r -p '.prompt "" ""'
+builtin print -r -p ".open ${__db_dir}/${__db_file}"
+
+local -a __hook_arr_out
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && {
+    builtin print -r -p -- "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    if [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = (\!|\#)* ]]; then
+        -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_open]#\!}:+get-tokens-nl}:-whitespace-collapse}
+    elif [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = @* ]]; then
+        -zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
+    fi
+}
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && (
+    builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && \
+        () { eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; } "${__hook_arr_out[@]}"
+)
 
 # Search for definition of the target table
 -zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def || \
@@ -80,5 +94,21 @@ for __it in "${(P)__array}"; do
         -zflai_run_log "Incorrect entry passed to SQLite store (skipped): $__it"
     fi
 done
+
+__hook_arr_out=()
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && {
+    builtin print -r -p -- "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    if [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = (\!|\#)* ]]; then
+        -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_close]#\!}:+get-tokens-nl}:-whitespace-collapse}
+    elif [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = @* ]]; then
+        -zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
+    fi
+}
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && (
+    builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && \
+        () { eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; } "${__hook_arr_out[@]}"
+)
 
 # vim:ft=zsh:et

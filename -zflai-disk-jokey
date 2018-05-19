@@ -18,9 +18,64 @@ function -zflai_run_log {
 # No way around the 1 second waiting, e.g. SQLite
 # can respond not enough fast for -t 0, but as it
 # is done in background process, it's not a drama
+#
+# $1 - label for log message
+# $2 - timeout value (>=0)
+# $3 - where to store fetched text/array (default: REPLY/reply)
+# $4 - preprocess the captured output, possible values are:
+#      - get-tokens - get words delimeted by white space, put them into $3 array
+#      - get-tokens-nl - as above, but return as \n-joined string (into $3)
+#      - whitespace-collapse - returns text (not array) in which consecutive
+#        white spaces are replaced by single space; replaces also tabs with space
+#      - copy - no ingerention into the captured text
 function -zflai_coproc_error_fetch {
-    local __iobuf
-    IFS='' read -r -t ${2:-1} -p __iobuf && { [[ "$__iobuf" = Error* ]] && builtin print -r "$1: $__iobuf" >>! "$LOG_FILE"; }
+    local __label="${1:-zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
+    local __iobuf __outbuf="" __retval=1 __tab=$'\t' __nl=$'\n'
+    local -a __arr
+    repeat 3; do
+        IFS='' read -r -t "$__tout" -p __iobuf && {
+            if [[ "$__iobuf" = Error* ]]; then
+                builtin print -r -- "$__label: $__iobuf" >>! "$LOG_FILE"
+            else
+                __outbuf+="$__iobuf$__nl"
+                __retval=0
+            fi
+        }
+        __tout=0
+    done
+
+    if (( !retval )); then
+        [[ -z "$__var_name" ]] && { __var_name="REPLY"; [[ "$__preproc" = "get-tokens" ]] && __var_name="reply"; }
+
+        case "$__preproc" in
+            get-tokens)
+                __outbuf="${__outbuf//($__tab|$__nl)/ }"
+                __arr=( "${(s: :)__outbuf}" )
+                ;;
+
+            get-tokens-nl)
+                __outbuf="${__outbuf//($__tab|$__nl)/ }"
+                __arr=( "${(s: :)__outbuf}" )
+                __outbuf="${(F)__arr}"
+                ;;
+
+            whitespace-collapse)
+                __outbuf="${__outbuf//$__tab/ }"
+                __outbuf="${__outbuf//[ ]##/ }"
+                ;;
+
+            *) # copy
+                ;;
+        esac
+
+        if [[ "$__preproc" = "get-tokens" ]]; then
+            : "${(PA)__var_name::=${__arr[@]}}"
+        else
+            : "${(P)__var_name::=$__outbuf}"
+        fi
+    fi
+
+    return "$__retval"
 }
 
 emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
