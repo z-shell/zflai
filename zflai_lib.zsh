@@ -66,6 +66,23 @@ function -zflai_format_ts {
     builtin strftime -s REPLY '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
 }
 
+function -zflai_subst_cmds {
+    local buffer="$1" nul=$'\0'
+    local -a cmds
+
+    cmds=( ${(0)${(S)buffer//(#b)*\$\((?#)([^\\]\))/${match[1]}${match[2]%\)}${nul}}%$nul*} )
+
+    integer size="${#cmds}" i
+    local -a outputs
+
+    for (( i = 1; i <= size; ++ i )); do
+        outputs[i]="$( ${(z)cmds[i]} )"
+    done
+
+    i=0
+    REPLY="${(S)buffer//(#b)\$\((?#)([^\\]\))/${outputs[++i]}}"
+}
+
 typeset -g ZFLAI_LIBS_SOURCED=1
 
 # vim:ft=zsh:et:tw=72
