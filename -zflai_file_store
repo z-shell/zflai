@@ -3,22 +3,20 @@
 # $1 - target database ($sel_db)
 # $2 - target table ($sel_table) 
 # $3 - name of array that holds entries
+# $4 - target table with %ID and %CN resolved
 
 setopt localtraps
 
 [[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
-local __db="$1" __table="$2" __array="$3[@]"
+local __db="$1" __table="$2" __array="$3[@]" __table_resolved="$4"
 local __db_dir="${DB_DEFS[${__db}_<access>_path]%/}" __db_file="${DB_DEFS[${__db}_<access>_file]}"
 local __it __it2 __vn __ts __text
 
 local __table_def_param_name
 integer __have_table_def=0 idx coidx=1
 
-local __table_resolved
--zflai_resolve "$__table" __table_resolved
-
-__db_file="${__db_file//\%TABLE\%/$__table_resolved}"
+__db_file="${__db_file//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
 
 local -a splitted keys
 
@@ -33,8 +31,8 @@ local -a splitted keys
 local first_key="${keys[1]}"
 [[ "$first_key" = *time* ]] && shift keys || coidx=0
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_open]//\%TABLE\%/$__table_resolved}" >>! "$__db_file"
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]}"; )
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_open]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 for __it in "${(P)__array}"; do
     splitted=( "${(@s:|:)__it}" )
@@ -57,8 +55,8 @@ for __it in "${(P)__array}"; do
     builtin print -r -- "$__text" >>! "$__db_file"
 done
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_close]//\%TABLE\%/$__table_resolved}" >>! "$__db_file"
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]}"; )
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_close]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 return 0
 # vim:ft=zsh:et

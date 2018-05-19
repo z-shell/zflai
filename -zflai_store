@@ -10,7 +10,7 @@
 #
 # It still needs resolution of the special keywords: %ID, %CN, %ESECS.
 
-local entry tpe sel_db sel_table timestamp input priv_arr_name db_string key cause="$1"
+local entry tpe sel_db sel_table sel_table_resolved timestamp input priv_arr_name db_string key cause="$1"
 local -A priv_arr_map count_hash
 integer priv_arr_index=0 arr_len entry_count=0
 
@@ -50,6 +50,14 @@ for key in "${(k)count_hash[@]}"; do
 done
 [[ "$header" != "Routing " ]] && -zflai_run_log "${header%, }"
 
+local -A _xchg_map_
+_xchg_map_=(
+    "%TABLE%"   "null"
+    "%ID%"      "$ZUID_ID"
+    "%CN%"      "$ZUID_CODENAME"
+)
+local _xchg_pat_="(%TABLE%|%ID%|%CN%)"
+
 integer idx
 for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     priv_arr_name="SUB_DATA_${idx}"
@@ -57,12 +65,15 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     sel_db="${db_string%%__%__*}"
     sel_table="${db_string##*__%__}"
 
+    -zflai_resolve "$sel_table" sel_table_resolved
+    _xchg_map_[%TABLE%]="$sel_table_resolved"
+
     [[ "$db_string" = [[:space:]]# ]] && { print "ERROR: didn't find db_string for $priv_arr_name"; continue; }
 
     if [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "sqlite3" ]]; then
         -zflai_sqlite_store "$sel_db" "$sel_table" "$priv_arr_name"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "file" ]]; then
-        -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name"
+        -zflai_file_store "$sel_db" "$sel_table" "$priv_arr_name" "$sel_table_resolved"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "elastic-search" ]]; then
         -zflai_elasticsearch_store "$sel_db" "$sel_table" "$priv_arr_name"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "mysql" ]]; then
