@@ -27,9 +27,14 @@ local -a splitted keys
     keys=( "${(okn@)${(Pk@)__table_def_param_name}}" ) || \
     -zflai_run_log "File-Storage: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
 
+[[ "0" -eq "${(P)#__array}" ]] && return 0
+
 # Skip timestamp from columns / hash keys
 local first_key="${keys[1]}"
 [[ "$first_key" = *time* ]] && shift keys || coidx=0
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_open]//\%TABLE\%/$__table_resolved}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]}"; )
 
 for __it in "${(P)__array}"; do
     splitted=( "${(@s:|:)__it}" )
@@ -52,4 +57,8 @@ for __it in "${(P)__array}"; do
     builtin print -r -- "$__text" >>! "$__db_file"
 done
 
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_close]//\%TABLE\%/$__table_resolved}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]}"; )
+
+return 0
 # vim:ft=zsh:et
