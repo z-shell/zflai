@@ -14,10 +14,12 @@ local -a match mbegin mend
 [[ ! -r "$__ini_file" ]] && { builtin print "zflai: an ini file is unreadable ($__ini_file)"; return 1; }
 
 while read -r -t 1 __line; do
-    if [[ "$__line" = (#b)[[:blank:]]#\[([^\]]##)\][[:blank:]]# ]]; then
+    if [[ "$__line" = [[:blank:]]#\;* ]]; then
+        continue
+    elif [[ "$__line" = (#b)[[:blank:]]#\[([^\]]##)\][[:blank:]]# ]]; then
         __cur_section="${match[1]}"
     elif [[ "$__line" = (#b)[[:blank:]]#([^[:blank:]=]##)[[:blank:]]#[=][[:blank:]]#(*) ]]; then
-        match[2]="${match[2]%"${match[2]##*[! $'\t']}"}"
+        match[2]="${match[2]%"${match[2]##*[! $'\t']}"}" # remove trailing whitespace
         __access_string="${__out_hash}[${__key_prefix}<$__cur_section>_${match[1]}]"
         : "${(P)__access_string::=${match[2]}}"
     fi
