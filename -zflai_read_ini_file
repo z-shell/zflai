@@ -11,7 +11,7 @@ local __ini_file="$1" __out_hash="$2" __key_prefix="$3"
 local IFS='' __line __cur_section="void" __access_string
 local -a match mbegin mend
 
-[[ ! -r "$__ini_file" ]] && { builtin print "zflai: an ini file is unreadable ($__ini_file)"; return 1; }
+[[ ! -r "$__ini_file" ]] && { builtin print -r "zflai: an ini file is unreadable ($__ini_file)"; return 1; }
 
 while read -r -t 1 __line; do
     if [[ "$__line" = [[:blank:]]#\;* ]]; then
