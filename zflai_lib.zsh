@@ -81,6 +81,8 @@ function -zflai_subst_cmds {
 
     i=0
     REPLY="${(S)buffer//(#b)\$\((?#)([^\\]\))/${outputs[++i]}}"
+
+    return 0
 }
 
 typeset -g ZFLAI_LIBS_SOURCED=1

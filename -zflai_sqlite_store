@@ -26,7 +26,8 @@ builtin print -r -p ".open ${__db_dir}/${__db_file}"
 local -a __hook_arr_out
 
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && {
-    builtin print -r -p -- "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    builtin print -r -p -- "$REPLY"
     if [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = (\!|\#)* ]]; then
         -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_open]#\!}:+get-tokens-nl}:-whitespace-collapse}
     elif [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = @* ]]; then
@@ -98,7 +99,8 @@ done
 __hook_arr_out=()
 
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && {
-    builtin print -r -p -- "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    builtin print -r -p -- "$REPLY"
     if [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = (\!|\#)* ]]; then
         -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_close]#\!}:+get-tokens-nl}:-whitespace-collapse}
     elif [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = @* ]]; then

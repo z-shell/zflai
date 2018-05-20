@@ -31,7 +31,7 @@ local -a splitted keys
 local first_key="${keys[1]}"
 [[ "$first_key" = *time* ]] && shift keys || coidx=0
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_open]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && -zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_open]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 for __it in "${(P)__array}"; do
@@ -55,7 +55,7 @@ for __it in "${(P)__array}"; do
     builtin print -r -- "$__text" >>! "$__db_file"
 done
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && builtin print -r -- "${DB_DEFS[${__db}_<hooks>_on_close]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && -zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_close]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 return 0
