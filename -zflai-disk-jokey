@@ -10,9 +10,11 @@
 # It's a background process, can afford logging
 # to a file
 function -zflai_run_log {
-    -zflai_format_ts
-    [[ -z "$1" ]] && REPLY=""
-    [[ "$*" = *${REPLY%%-*}* ]] && print -r -- "$*" >>! "$LOG_FILE" || print -r -- "$REPLY $*" >>! "$LOG_FILE"
+    local ts
+    -zflai_format_ts ts
+    [[ -z "$1" ]] && ts=""
+    [[ "$*" = *${ts%%-*}* ]] && print -r -- "$*" >>! "$LOG_FILE" || print -r -- "$ts $*" >>! "$LOG_FILE"
+    return 0
 }
 
 # No way around the 1 second waiting, e.g. SQLite

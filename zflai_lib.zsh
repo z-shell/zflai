@@ -63,7 +63,7 @@ function -zflai_resolve {
 
 # $REPLY - formatted timestamp, for log
 function -zflai_format_ts {
-    builtin strftime -s REPLY '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
+    builtin strftime -s ${1:-REPLY} '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
 }
 
 function -zflai_subst_cmds {
