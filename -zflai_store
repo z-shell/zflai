@@ -46,7 +46,7 @@ header="------ ↓ [$header] MEMORY TO DISK #$entry_count (agent: ${sysparams[pi
 
 header="Routing ";
 for key in "${(k)count_hash[@]}"; do
-    header+="${count_hash[$key]} logs to $key, "
+    header+="${count_hash[$key]} log(s) to $key, "
 done
 [[ "$header" != "Routing " ]] && -zflai_run_log "${header%, }"
 
