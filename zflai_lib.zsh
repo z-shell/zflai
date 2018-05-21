@@ -72,7 +72,7 @@ function -zflai_subst_cmds {
 
     cmds=( ${(0)${(S)buffer//(#b)*\$\((?#)([^\\]\))/${match[1]}${match[2]%\)}${nul}}%$nul*} )
 
-    [[ "${cmds[1]}" = "$buffer" ]] && return 0
+    [[ "${cmds[1]}" = "$buffer" ]] && { REPLY="$buffer"; return 0; }
 
     integer size="${#cmds}" i
     local -a outputs
