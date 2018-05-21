@@ -99,7 +99,7 @@ builtin cd -q "$CACHE_DIR"
 -zflai_run_log ""
 -zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]}, ID=$ZUID_ID/$ZUID_CODENAME =="
 -zflai_read_db_defs
--zflai_learn_table "default-%ID-%CN :: timestamp:datetime / message:varchar(288)"
+-zflai_learn_table "default-%ID-%CN :: timestamp:integer / message:varchar(288)"
 -zflai_read_table_defs
 
 local keep_alive_time store_interval
