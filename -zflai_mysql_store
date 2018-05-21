@@ -1,0 +1,122 @@
+# Copyright (c) 2018 Sebastian Gniazdowski
+#
+# MySQL backend.
+#
+# $1 - database - filename of the definition without .def extension
+#                 prefix in keys of DB_DEFS hash
+# $2 - table name
+# $3 - array holding entries to store (its name)
+# $4 - resolved table name
+
+setopt localtraps
+
+[[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
+
+local __db="$1" __table="$2" __array="$3[@]" __table_resolved="$4"
+local __db_host="${DB_DEFS[${__db}_<access>_host]}" __db_port="${DB_DEFS[${__db}_<access>_port]}"
+local __db_user="${DB_DEFS[${__db}_<access>_user]}" __db_password="${DB_DEFS[${__db}_<access>_password]}"
+local __db_database="${DB_DEFS[${__db}_<access>_database]}"
+local __iobuf __it __it2 __sql __vn __val __ts __tab=$'\t' __nl=$'\n'
+local -a __arr
+
+integer __have_table_def=0
+local __table_def_param_name
+
+trap "builtin print -p \"exit\"" EXIT
+
+coproc 2>&1 mysql -nsrN --batch --force --host="$__db_host" ${__db_port:+--port="${__db_port}"} \
+                  --user="$__db_user" ${__db_password:+--password="$__db_password"} \
+                  "$__db_database"
+
+local -a __hook_arr_out
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && {
+    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    builtin print -r -p -- "$REPLY"
+    if [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = (\!|\#)* ]]; then
+        -zflai_coproc_error_fetch MySQL 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_open]#\!}:+get-tokens-nl}:-whitespace-collapse}
+    elif [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = @* ]]; then
+        -zflai_coproc_error_fetch MySQL 1 __hook_arr_out "get-tokens"
+    fi
+}
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && (
+    builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && \
+        () { eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; } "${__hook_arr_out[@]}"
+)
+
+# Search for definition of the target table
+-zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def || \
+    -zflai_run_log "MySQL: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
+
+# Check that table exists
+__iobuf=""
+builtin print -p "show tables like '${__table_resolved}';"
+IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
+    # Table doesn't exist, is it defined?
+    [[ -z "$__table_def_param_name" ]] && {
+        -zflai_run_log "MySQL: Error: MySQL database \`$__db_database' doesn't have table \`$__table_resolved', and there"
+        -zflai_run_log "MySQL: is no abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
+        -zflai_run_log "MySQL: No data was stored, aborting."
+        return 1
+    }
+
+    -zflai_run_log "MySQL: Table \`$__table_resolved' doesn't exist, creating.."
+
+    local -a keys
+    keys=( "${(okn@)${(Pk@)__table_def_param_name}}" )
+
+    __sql="create table \`${__table_resolved}\`( id integer primary key auto_increment";
+    for __it in "${keys[@]}"; do
+        __vn="${__table_def_param_name}[$__it]"
+        __val="${(P)__vn}"
+        __it="${__it##[0-9]##-}"
+
+        # Got name in $__it, type in $__val
+        __sql+=", $__it $__val"
+    done
+    __sql+=" );"
+
+    -zflai_run_log "MySQL: Issuing SQL(x): $__sql | $jobtexts"
+    builtin print -r -p "$__sql"
+    -zflai_coproc_error_fetch "MySQL" 1
+}
+
+local insert_into_response
+local -a splitted
+for __it in "${(P)__array}"; do
+    if [[ "$__it" = (#b)[[:blank:]]#[^:]##::[^:]##::[^:]##::([^[:blank:]\|]##)[[:blank:]]#\|[[:blank:]](#c0,1)(*) ]]; then
+        __ts="${match[1]}"
+        splitted=( "${(@s:|:)match[2]}" )
+        __sql="INSERT INTO \`${__table_resolved}\` values( NULL, $__ts"
+        for __it2 in "${splitted[@]}"; do
+            __sql+=", \"${${${__it2# }% }//\"/\\\"}\""
+        done
+        __sql+=" );"
+        builtin print -r -p -- "$__sql"
+        insert_into_response=""
+        -zflai_coproc_error_fetch "MySQL" 0 insert_into_response
+        [[ -n "$insert_into_response" ]] && -zflai_run_log "Received response after INSERT INTO statement: $insert_into_response"
+    else
+        -zflai_run_log "Incorrect entry passed to MySQL store (skipped): $__it"
+    fi
+done
+
+__hook_arr_out=()
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && {
+    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    builtin print -r -p -- "$REPLY"
+    if [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = (\!|\#)* ]]; then
+        -zflai_coproc_error_fetch MySQL 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_close]#\!}:+get-tokens-nl}:-whitespace-collapse}
+    elif [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = @* ]]; then
+        -zflai_coproc_error_fetch MySQL 1 __hook_arr_out "get-tokens"
+    fi
+}
+
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && (
+    builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && \
+        () { eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; } "${__hook_arr_out[@]}"
+)
+
+# vim:ft=zsh:et

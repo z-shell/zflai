@@ -77,7 +77,7 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "elastic-search" ]]; then
         -zflai_elasticsearch_store "$sel_db" "$sel_table" "$priv_arr_name"
     elif [[ "${DB_DEFS[${sel_db}_<access>_engine]}" = "mysql" ]]; then
-        -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name"
+        -zflai_mysql_store "$sel_db" "$sel_table" "$priv_arr_name" "$sel_table_resolved"
     fi
 
     unset "$priv_arr_name"
