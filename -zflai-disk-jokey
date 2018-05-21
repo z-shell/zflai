@@ -178,7 +178,7 @@ while (( 1 )); do
     # so that it is clear we're not reading more data
     (( ( SECONDS - action_time ) >= keep_alive_time )) && { builtin exec 0>&-; break; }
 
-    (( ( SECONDS - store_time ) >= store_interval )) && { store_time="$SECONDS"; -zflai_store "${store_interval}-interval"; }
+    (( ( SECONDS - store_time ) >= store_interval )) && { store_time="$SECONDS"; -zflai_store "${store_interval}s-interval"; }
 done
 
 -zflai_store "$cause"
