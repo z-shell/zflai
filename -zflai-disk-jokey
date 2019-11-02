@@ -7,6 +7,9 @@
 # stdin  ---DATA-->  internal array of lines  ---DATA-->  log-file / database
 #
 
+emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal \
+            -o rcquotes -o noshortloops -o noautopushd
+
 # It's a background process, can afford logging
 # to a file
 function -zflai_run_log {
@@ -80,7 +83,6 @@ function -zflai_coproc_error_fetch {
     return "$__retval"
 }
 
-emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal
 
 local REPLY MATCH
 integer MBEGIN MEND
