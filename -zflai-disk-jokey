@@ -83,6 +83,12 @@ function -zflai_coproc_error_fetch {
     return "$__retval"
 }
 
+trap "-zflai_store 'INT signal received'; return 1;" INT
+trap "-zflai_store 'HUP signal received'; return 1;" HUP
+trap "-zflai_store 'TERM signal received'; return 1;" TERM
+trap "-zflai_store 'QUIT signal received'; return 1;" QUIT
+trap "-zflai_store 'ABRT signal received'; return 1;" ABRT
+trap "-zflai_store 'PIPE signal received'; return 1;" PIPE
 
 local REPLY MATCH
 integer MBEGIN MEND
