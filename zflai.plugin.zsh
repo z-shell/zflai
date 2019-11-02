@@ -5,9 +5,9 @@ typeset -g ZFLAI_SRC_DIR="${0:h}"
 
 zmodload zsh/datetime
 zmodload zsh/system
-autoload -- -zflai-disk-jokey -zflai_check_start -zflai_learn_table -zflai_get_abstract_table_for \
-            -zflai_read_ini_file -zflai_read_db_defs -zflai_read_table_defs \
-            -zflai_store -zflai_sqlite_store -zflai_file_store -zflai_elasticsearch_store -zflai_mysql_store
+autoload -- .zflai-disk-jokey .zflai_check_start .zflai_learn_table .zflai_get_abstract_table_for \
+            .zflai_read_ini_file .zflai_read_db_defs .zflai_read_table_defs \
+            .zflai_store .zflai_sqlite_store .zflai_file_store .zflai_elasticsearch_store .zflai_mysql_store
 
 typeset -g ZFLAI_FD=0 ZFLAI_NULL_FD=0 ZFLAI_LAST_ACTION="$EPOCHSECONDS" ZFLAI_KEEP_ALIVE=45 ZFLAI_STORE_INTERVAL=30
 
@@ -26,13 +26,15 @@ function zflai_refresh_config {
 #
 # $1 - log message
 function zflai-log {
-    -zflai_check_start
+    .zflai_check_start
     print -u $ZFLAI_FD -r -- "L $1"
     ZFLAI_LAST_ACTION="$EPOCHSECONDS"
 }
 
+# Creates a table? Or rather passes its
+# definition to the dj
 function zflai-ctable {
-    -zflai_check_start
+    .zflai_check_start
     print -u $ZFLAI_FD -r -- "T $1"
     ZFLAI_LAST_ACTION="$EPOCHSECONDS"
 }

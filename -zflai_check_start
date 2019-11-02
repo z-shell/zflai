@@ -23,7 +23,7 @@ fi
 (( ZFLAI_FD != 0 )) && return 0
 
 # Not running, or closed to prevent race condition - start a new agent
-builtin exec {ZFLAI_FD}> >(-zflai-disk-jokey "$ZUID_ID" "$ZUID_CODENAME") || return 1
+builtin exec {ZFLAI_FD}> >(.zflai-disk-jokey "$ZUID_ID" "$ZUID_CODENAME") || return 1
 
 return 0
 

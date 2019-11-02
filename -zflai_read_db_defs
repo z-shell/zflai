@@ -18,7 +18,7 @@ XDG_MAP=( "%XDG_CONFIG_HOME%" "${XDG_CONFIG_HOME:-$HOME/.config}"
 
 local def_file
 for def_file in "$CONFIG_DIR"/*.def(N); do
-    -zflai_read_ini_file "$def_file" DB_DEFS "${def_file:r:t}_"
+    .zflai_read_ini_file "$def_file" DB_DEFS "${def_file:r:t}_"
 done
 
 local key

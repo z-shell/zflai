@@ -18,11 +18,11 @@ elif [[ "$__line" = (#b)[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank
     __var_name="${match[1]}"
     __spec="${match[3]}"
 else
-    -zflai_run_log "Improper zflai-ctable call, didn't recognize syntax"
+    .zflai_run_log "Improper zflai-ctable call, didn't recognize syntax"
     return 1
 fi
 
--zflai_moderate_param_name "$__var_name" __var_name "tspec_"
+.zflai_moderate_param_name "$__var_name" __var_name "tspec_"
 typeset -gA "${__var_name}"
 
 local -a __fields __two

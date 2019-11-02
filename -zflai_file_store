@@ -21,9 +21,9 @@ __db_file="${__db_file//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
 local -a splitted keys
 
 # Search for definition of the target table
--zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def && \
+.zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def && \
     keys=( "${(okn@)${(Pk@)__table_def_param_name}}" ) || \
-    -zflai_run_log "File-Storage: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
+    .zflai_run_log "File-Storage: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
 
 [[ "0" -eq "${(P)#__array}" ]] && return 0
 
@@ -31,7 +31,7 @@ local -a splitted keys
 local first_key="${keys[1]}"
 [[ "$first_key" = *time* ]] && shift keys || coidx=0
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && -zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_open]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && .zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_open]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_open_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_open_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 for __it in "${(P)__array}"; do
@@ -55,7 +55,7 @@ for __it in "${(P)__array}"; do
     builtin print -r -- "$__text" >>! "$__db_file"
 done
 
-[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && -zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_close]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
+[[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && .zflai_subst_cmds "${DB_DEFS[${__db}_<hooks>_on_close]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}" && builtin print -r -- "$REPLY" >>! "$__db_file"
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 return 0

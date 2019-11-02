@@ -12,9 +12,9 @@ emulate -LR zsh -o extendedglob -o typesetsilent -o warncreateglobal \
 
 # It's a background process, can afford logging
 # to a file
-function -zflai_run_log {
+function .zflai_run_log {
     local ts
-    -zflai_format_ts ts
+    .zflai_format_ts ts
     [[ -z "$1" ]] && ts=""
     [[ "$*" = *${ts%%-*}* ]] && print -r -- "$*" >>! "$LOG_FILE" || print -r -- "$ts $*" >>! "$LOG_FILE"
     return 0
@@ -33,8 +33,8 @@ function -zflai_run_log {
 #      - whitespace-collapse - returns text (not array) in which consecutive
 #        white spaces are replaced by single space; replaces also tabs with space
 #      - copy - no ingerention into the captured text
-function -zflai_coproc_error_fetch {
-    local __label="${1:-zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
+function .zflai_coproc_error_fetch {
+    local __label="${1:.zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
     local __iobuf __outbuf="" __retval=1 __tab=$'\t' __nl=$'\n' IFS=''
     local -a __arr
     repeat 3; do
@@ -83,12 +83,12 @@ function -zflai_coproc_error_fetch {
     return "$__retval"
 }
 
-trap "-zflai_store 'INT signal received'; return 1;" INT
-trap "-zflai_store 'HUP signal received'; return 1;" HUP
-trap "-zflai_store 'TERM signal received'; return 1;" TERM
-trap "-zflai_store 'QUIT signal received'; return 1;" QUIT
-trap "-zflai_store 'ABRT signal received'; return 1;" ABRT
-trap "-zflai_store 'PIPE signal received'; return 1;" PIPE
+trap ".zflai_store 'INT signal received'; return 1;" INT
+trap ".zflai_store 'HUP signal received'; return 1;" HUP
+trap ".zflai_store 'TERM signal received'; return 1;" TERM
+trap ".zflai_store 'QUIT signal received'; return 1;" QUIT
+trap ".zflai_store 'ABRT signal received'; return 1;" ABRT
+trap ".zflai_store 'PIPE signal received'; return 1;" PIPE
 
 local REPLY MATCH
 integer MBEGIN MEND
@@ -104,11 +104,11 @@ builtin cd -q "$CACHE_DIR"
 
 [[ "$ZFLAI_LIBS_SOURCED" != "1" ]] && source "${ZFLAI_SRC_DIR}/zflai_lib.zsh"
 
--zflai_run_log ""
--zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]}, ID=$ZUID_ID/$ZUID_CODENAME =="
--zflai_read_db_defs
--zflai_learn_table "default-%ID-%CN :: timestamp:integer / message:varchar(288)"
--zflai_read_table_defs
+.zflai_run_log ""
+.zflai_run_log "== ZFLAI Background Process Starting, PID=${sysparams[pid]}, ID=$ZUID_ID/$ZUID_CODENAME =="
+.zflai_read_db_defs
+.zflai_learn_table "default-%ID-%CN :: timestamp:integer / message:varchar(288)"
+.zflai_read_table_defs
 
 local keep_alive_time store_interval
 builtin zstyle -s ":plugin:zflai:dj" keep_alive_time keep_alive_time || keep_alive_time=45
@@ -139,7 +139,7 @@ while (( 1 )); do
             esac
         # Table definition?
         elif [[ "${line[1]}" = "T" ]]; then
-            -zflai_learn_table "${line##T[[:blank:]]#}"
+            .zflai_learn_table "${line##T[[:blank:]]#}"
             continue
         else
             # Log?
@@ -155,7 +155,7 @@ while (( 1 )); do
                 sel_db="$current_db"
                 sel_table="$current_table"
             else
-                -zflai_run_log "DJ: Unknown request received: \`$line'"
+                .zflai_run_log "DJ: Unknown request received: \`$line'"
                 continue
             fi
 
@@ -186,9 +186,9 @@ while (( 1 )); do
     # so that it is clear we're not reading more data
     (( ( SECONDS - action_time ) >= keep_alive_time )) && { builtin exec 0>&-; break; }
 
-    (( ( SECONDS - store_time ) >= store_interval )) && { store_time="$SECONDS"; -zflai_store "${store_interval}s-interval"; }
+    (( ( SECONDS - store_time ) >= store_interval )) && { store_time="$SECONDS"; .zflai_store "${store_interval}s-interval"; }
 done
 
--zflai_store "$cause"
+.zflai_store "$cause"
 
 # vim:ft=zsh:et

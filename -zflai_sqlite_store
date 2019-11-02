@@ -26,12 +26,12 @@ builtin print -r -p ".open ${__db_dir}/${__db_file}"
 local -a __hook_arr_out
 
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_open]}" ]] && {
-    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    .zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_open]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
     builtin print -r -p -- "$REPLY"
     if [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = (\!|\#)* ]]; then
-        -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_open]#\!}:+get-tokens-nl}:-whitespace-collapse}
+        .zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_open]#\!}:+get-tokens-nl}:-whitespace-collapse}
     elif [[ "${DB_DEFS[${__db}_<hooks>_on_open]}" = @* ]]; then
-        -zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
+        .zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
     fi
 }
 
@@ -41,8 +41,8 @@ local -a __hook_arr_out
 )
 
 # Search for definition of the target table
--zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def || \
-    -zflai_run_log "SQLite: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
+.zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def || \
+    .zflai_run_log "SQLite: Warning: No abstract definition of table \`${__table}' (general or for database \`${__db}')"
 
 # Check that table exists
 __iobuf=""
@@ -50,15 +50,15 @@ builtin print -p ".tables ${__table_resolved}"
 IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     # Table doesn't exist, is it defined?
     [[ -z "$__table_def_param_name" ]] && {
-        -zflai_run_log "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and there is no"
-        -zflai_run_log "SQLite: abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
-        -zflai_run_log "SQLite: No data was stored, aborting."
-        -zflai_run_log "SQLite: The related database file is: $__db_dir/$__db_file."
+        .zflai_run_log "SQLite: Error: SQLite database \`$__db' doesn't have table \`$__table_resolved', and there is no"
+        .zflai_run_log "SQLite: abstract definition for this table (i.e. for \`$__table'; see function \`zflai-ctable')."
+        .zflai_run_log "SQLite: No data was stored, aborting."
+        .zflai_run_log "SQLite: The related database file is: $__db_dir/$__db_file."
         builtin print -p ".exit"
         return 1
     }
 
-    -zflai_run_log "SQLite: Table \`$__table_resolved' doesn't exist, creating.."
+    .zflai_run_log "SQLite: Table \`$__table_resolved' doesn't exist, creating.."
 
     local -a keys
     keys=( "${(okn@)${(Pk@)__table_def_param_name}}" )
@@ -74,9 +74,9 @@ IFS='' read -r -t 1 -p __iobuf && [[ "$__iobuf" = "$__table_resolved" ]] || {
     done
     __sql+=" );"
 
-    -zflai_run_log "SQLite: Issuing SQL: $__sql"
+    .zflai_run_log "SQLite: Issuing SQL: $__sql"
     builtin print -r -p "$__sql"
-    -zflai_coproc_error_fetch "SQLite"
+    .zflai_coproc_error_fetch "SQLite"
 }
 
 local -a splitted
@@ -90,21 +90,21 @@ for __it in "${(P)__array}"; do
         done
         __sql+=" );"
         builtin print -r -p -- "$__sql"
-        -zflai_coproc_error_fetch "SQLite" 0
+        .zflai_coproc_error_fetch "SQLite" 0
     else
-        -zflai_run_log "Incorrect entry passed to SQLite store (skipped): $__it"
+        .zflai_run_log "Incorrect entry passed to SQLite store (skipped): $__it"
     fi
 done
 
 __hook_arr_out=()
 
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_close]}" ]] && {
-    -zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
+    .zflai_subst_cmds "${${DB_DEFS[${__db}_<hooks>_on_close]#(\!|@|\#)}//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"
     builtin print -r -p -- "$REPLY"
     if [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = (\!|\#)* ]]; then
-        -zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_close]#\!}:+get-tokens-nl}:-whitespace-collapse}
+        .zflai_coproc_error_fetch SQLite 1 '__hook_arr_out[1]' ${${${(M)DB_DEFS[${__db}_<hooks>_on_close]#\!}:+get-tokens-nl}:-whitespace-collapse}
     elif [[ "${DB_DEFS[${__db}_<hooks>_on_close]}" = @* ]]; then
-        -zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
+        .zflai_coproc_error_fetch SQLite 1 __hook_arr_out "get-tokens"
     fi
 }
 

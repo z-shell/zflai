@@ -8,7 +8,7 @@
 # $2 - output parameter (its name) for the result
 # $3 - prefix to be applied to the moderated param name
 
-function -zflai_moderate_param_name {
+function .zflai_moderate_param_name {
     local __param_name="$1" __out_name="$2" __pfx="$3" __buf=""
 
     [[ -z "${__param_name}" || -z "${__out_name}" ]] && return 1
@@ -26,13 +26,13 @@ function -zflai_moderate_param_name {
     return 0
 }
 
-# Opposite to -zflai_moderate_param_name, decodes moderateed param name.
+# Opposite to .zflai_moderate_param_name, decodes moderateed param name.
 #
 # $1 - the moderated parameter name to decode
 # $2 - output parameter (its name) for the result
 # $3 - prefix to remove from input or output parameter (the same effect,
 #      implementation removes the prefix from input data)
-function -zflai_original_param_name {
+function .zflai_original_param_name {
     local __tparam_name="$1" __out_name="$2" __pfx="$3" __buf="" ord
 
     __tparam_name="${__tparam_name#$__pfx}"
@@ -54,7 +54,7 @@ function -zflai_original_param_name {
 
 # $1 - table name with possible %ID, %CN
 # $2 - name of output parameter (default: REPLY)
-function -zflai_resolve {
+function .zflai_resolve {
     local __table="$1" __var_name="${2:-REPLY}"
     __table="${__table//\%ID/$ZUID_ID}"
     __table="${__table//\%CN/$ZUID_CODENAME}"
@@ -62,11 +62,11 @@ function -zflai_resolve {
 }
 
 # $REPLY - formatted timestamp, for log
-function -zflai_format_ts {
+function .zflai_format_ts {
     builtin strftime -s ${1:-REPLY} '%Y%m%d-%H:%M:%S' "$EPOCHSECONDS"
 }
 
-function -zflai_subst_cmds {
+function .zflai_subst_cmds {
     local buffer="$1" nul=$'\0'
     local -a cmds
 

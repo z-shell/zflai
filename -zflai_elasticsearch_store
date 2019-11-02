@@ -32,16 +32,16 @@ local __table_def_param_name
 integer __have_table_def=0 __idx __coidx=1
 
 local __table_resolved
--zflai_resolve "$__table" __table_resolved
+.zflai_resolve "$__table" __table_resolved
 
 __db_type="${__db_type//\%TABLE\%/$__table_resolved}"
 
 local -a __splitted __keys
 
 # Search for definition of the target table
--zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def && \
+.zflai_get_abstract_table_for "$__db" "$__table" "tspec_" __table_def_param_name __have_table_def && \
     __keys=( "${(okn@)${(Pk@)__table_def_param_name}}" ) || \
-    { -zflai_run_log "ElasticSearch-Storage: Error: No abstract definition of table \`${__table}'" \
+    { .zflai_run_log "ElasticSearch-Storage: Error: No abstract definition of table \`${__table}'" \
                      "(general or for database \`${__db}'), aborting."; return 1; }
 
 # Create index with mappings if it doesn't exist
