@@ -23,6 +23,7 @@ integer __have_table_def=0
 local __table_def_param_name
 
 trap "builtin print -p \"exit\"" EXIT
+trap "builtin print -p \"exit\"; return 1" INT TERM ABRT QUIT HUP
 
 coproc 2>&1 mysql -nsrN --batch --force --host="$__db_host" ${__db_port:+--port="${__db_port}"} \
                   --user="$__db_user" ${__db_password:+--password="$__db_password"} \
