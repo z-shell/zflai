@@ -35,15 +35,16 @@ function .zflai_run_log {
 #      - copy - no ingerention into the captured text
 function .zflai_coproc_error_fetch {
     local __label="${1:-zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
-    local __iobuf __outbuf="" __retval=1 __tab=$'\t' __nl=$'\n' IFS=''
+    local __iobuf __outbuf="" __retval=0 __tab=$'\t' __nl=$'\n' IFS=''
     local -a __arr
     repeat 3; do
         while read -r -t "$__tout" -p __iobuf; do
             if [[ $__iobuf = (Error*|ERROR*) ]]; then
                 builtin print -r -- "$__label: $__iobuf" >>! "$LOG_FILE"
-            else
+                __retval=1
+            # E.g.: mysql: [Warning] …
+            elif [[ $__iobuf != mysql:\ \[*\]* ]]; then
                 __outbuf+="$__iobuf$__nl"
-                __retval=0
             fi
         done
         __tout=0
