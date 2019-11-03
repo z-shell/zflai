@@ -34,7 +34,7 @@ function .zflai_run_log {
 #        white spaces are replaced by single space; replaces also tabs with space
 #      - copy - no ingerention into the captured text
 function .zflai_coproc_error_fetch {
-    local __label="${1:.zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
+    local __label="${1:-zflai}" __tout="${2:-1}" __var_name="$3" __preproc="${4:-copy}"
     local __iobuf __outbuf="" __retval=1 __tab=$'\t' __nl=$'\n' IFS=''
     local -a __arr
     repeat 3; do
