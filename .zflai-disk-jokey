@@ -39,7 +39,7 @@ function .zflai_coproc_error_fetch {
     local -a __arr
     repeat 3; do
         while read -r -t "$__tout" -p __iobuf; do
-            if [[ "$__iobuf" = Error* || "$__iobuf" = ERROR* ]]; then
+            if [[ $__iobuf = (Error*|ERROR*) ]]; then
                 builtin print -r -- "$__label: $__iobuf" >>! "$LOG_FILE"
             else
                 __outbuf+="$__iobuf$__nl"
