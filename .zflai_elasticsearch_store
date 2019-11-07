@@ -27,6 +27,7 @@ local __db="$1" __table="$2" __array="$3[@]"
 local __db_host="${DB_DEFS[${__db}_<access>_host]%/}" __db_index="${DB_DEFS[${__db}_<access>_index]}"
 local __db_type="${DB_DEFS[${__db}_<access>_type]}"
 local __it __it2 __vn __val __ts __text
+local __log="${XDG_CACHE_HOME:-$HOME/.config}/zflai/zflai.log"
 
 local __table_def_param_name
 integer __have_table_def=0 __idx __coidx=1
@@ -45,7 +46,7 @@ local -a __splitted __keys
                      "(general or for database \`${__db}'), aborting."; return 1; }
 
 # Create index with mappings if it doesn't exist
-if ! command curl --silent --fail --head --output /dev/null "$__db_host/$__db_index"; then
+if ! command curl --silent --show-error --fail --head -o /dev/null "$__db_host/$__db_index"; then
     local item mapping='{
     "mappings": {
         "_doc": {
@@ -66,7 +67,7 @@ if ! command curl --silent --fail --head --output /dev/null "$__db_host/$__db_in
     mapping="${mapping%,$'\n'}"$'\n'
     mapping="$mapping""}}}}"
 
-    command curl -o /dev/null --silent -X PUT "$__db_host/$__db_index" -H 'Content-Type: application/json' -d"$mapping"
+    command curl -X PUT --silent --show-error -o /dev/null 2>>!"$__log" "$__db_host/$__db_index" -H 'Content-Type: application/json' -d"$mapping"
 fi
 
 # Skip timestamp from columns / hash __keys
@@ -95,7 +96,7 @@ for __it in "${(P)__array}"; do
     done
     __text="${__text%,$'\n'}"$'\n'
 
-    command curl -o /dev/null --silent -X POST "$__db_host/$__db_index/_doc" -H 'Content-Type: application/json' \
+    command curl -X POST --silent --show-error -o /dev/null 2>>!"$__log" "$__db_host/$__db_index/_doc" -H 'Content-Type: application/json' \
                  -d$'{\n'"$__text"$'}\n'
 done
 
