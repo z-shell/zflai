@@ -6,8 +6,8 @@ path = %XDG_CACHE_HOME%/zflai/
 
 [hooks]
 on_open = STATUS: Opening file %TABLE%.log
-on_open_sh = !print Hello world! >> ~/.cache/zflai/file_backend.nfo
+on_open_sh = print Hello world! >> ~/.cache/zflai/file_backend.nfo
 on_close = STATUS: Closing file %TABLE%.log
-on_close_sh = !print Hello world! >> ~/.cache/zflai/file_backend.nfo
+on_close_sh = print Hello world! >> ~/.cache/zflai/file_backend.nfo
 
 ; vim:ft=dosini
