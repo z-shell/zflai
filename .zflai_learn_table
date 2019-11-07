@@ -23,6 +23,7 @@ else
 fi
 
 .zflai_moderate_param_name "$__var_name" __var_name "tspec_"
+unset $__var_name 2>/dev/null
 typeset -gA "${__var_name}"
 
 local -a __fields __two
