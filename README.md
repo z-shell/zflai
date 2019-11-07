@@ -204,7 +204,7 @@ Example database contents after:
 are:
 
 ```zsh
-% curl -X GET "localhost:9200/my-db-5/_search" -H 'Content-Type: application/json
+% curl -X GET "localhost:9200/my-db/_search" -H 'Content-Type: application/json
 {
   "query": { "match_all": {} },
 }' | jq '.hits.hits[]._source'
