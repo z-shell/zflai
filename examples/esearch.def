@@ -1,0 +1,7 @@
+; Copy the file to ~/.config/zflai
+[access]
+engine = elastic-search
+host = localhost:9200
+index = my-db
+
+; vim:ft=dosini

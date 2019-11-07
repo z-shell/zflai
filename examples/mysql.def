@@ -1,0 +1,16 @@
+; Copy the file to ~/.config/zflai
+[access]
+engine = mysql
+host = localhost
+port =
+user = root
+password = …
+database = test
+
+[hooks]
+on_open = !show databases;
+on_open_sh = print -nr -- "$1" | egrep '(mysql|test)' >! ~/.cache/zflai/mysql.nfo
+on_close = #show tables; select * from mytable;
+on_close_sh = print -rl -- "$(date -R)" "$1" >>! %XDG_CACHE_HOME%/zflai/mysql.tables
+
+; vim:ft=dosini
