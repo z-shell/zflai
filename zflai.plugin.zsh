@@ -34,9 +34,16 @@ function zflai-log {
 # Creates a table? Or rather passes its
 # definition to the dj
 function zflai-ctable {
-    .zflai_check_start
-    print -u $ZFLAI_FD -r -- "T $1"
+    if [[ "$__line" = (#b)[[:blank:]]#"@"([^[:blank:]/]##)[[:blank:]]#/[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
+        :
+    elif [[ "$__line" = (#b)[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
+        :
+    else
+        print "Improper zflai-ctable call, didn't recognize syntax"
+        return 1
+    fi
     ZFLAI_LAST_ACTION="$EPOCHSECONDS"
+    print -u $ZFLAI_FD -r -- "T $1"
 }
 
 # Binary flock command that supports 0 second timeout (zsystem's
