@@ -43,8 +43,9 @@ function zflai-ctable {
         print "Improper zflai-ctable call, didn't recognize syntax"
         return 1
     fi
-    ZFLAI_LAST_ACTION="$EPOCHSECONDS"
+    .zflai_check_start
     print -u $ZFLAI_FD -r -- "T $1"
+    ZFLAI_LAST_ACTION="$EPOCHSECONDS"
 }
 
 # Binary flock command that supports 0 second timeout (zsystem's
