@@ -34,6 +34,7 @@ function zflai-log {
 # Creates a table? Or rather passes its
 # definition to the dj
 function zflai-ctable {
+    local __line="$1"
     if [[ "$__line" = (#b)[[:blank:]]#"@"([^[:blank:]/]##)[[:blank:]]#/[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
         :
     elif [[ "$__line" = (#b)[[:blank:]]#([^[:blank:]:]##)[[:blank:]](#c0,1)([[:blank:]]#::[[:blank:]](#c0,1)|)(*) ]]; then
