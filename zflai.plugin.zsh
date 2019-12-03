@@ -1,7 +1,14 @@
 # Copyright (c) 2018 Sebastian Gniazdowski
 
-0="${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}"
-typeset -g ZFLAI_SRC_DIR="${0:h}"
+0=${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}
+0=${${(M)0:#/*}:-$PWD/$0}
+
+if [[ ${zsh_loaded_plugins[-1]} != */zflai && -z ${fpath[(r)${0:h}]} ]]
+then
+    fpath+=( "${0:h}" )
+fi
+
+typeset -g ZFLAI_SRC_DIR=${0:h}
 
 zmodload zsh/datetime
 zmodload zsh/system
