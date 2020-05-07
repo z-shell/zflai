@@ -60,11 +60,11 @@ function zflai-ctable {
 # flock in Zsh ver. < 5.3 doesn't) - util-linux/flock stripped
 # of some things, compiles hopefully everywhere (tested on OS X,
 # Linux, FreeBSD).
-if [[ ! -e "${0:h}/myflock/flock" ]]; then
+if [[ ! -e "${0:h}/myflock/flock" && ! -e "${0:h}/myflock/flock.exe" ]]; then
     (
         if zmodload zsh/system 2>/dev/null; then
             if zsystem flock -t 1 "${0:h}/myflock/LICENSE"; then
-                echo "\033[1;35m""zdharma\033[0m/\033[1;33m""zsh-unique-id\033[0m is building small locking command for you..."
+                echo "\033[1;35m""zdharma\033[0m/\033[1;33m""zflai033[0m is building small locking command for you..."
                 make -C "${0:h}/myflock"
             fi
         else
