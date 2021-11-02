@@ -1,8 +1,8 @@
-# Zflai – Fast-Logging Framework For Zshell
+# `ZFLAI`
 
 ## Introduction
 
-Adding logging to a script can constitute a problem – it makes the script run
+Fast-Logging Framework For Zshell. Adding logging to a script can constitute a problem – it makes the script run
 slower. If the script is to perform some large work then increasing the
 execution time by e.g.: 10-20% can lead to a significant difference.
 
@@ -232,15 +232,13 @@ zstyle ":plugin:zflai:dj" store_interval 30
 Simply source or load as a Zsh plugin, e.g.: with Zplugin:
 
 ```zsh
-zplugin load zdharma/zflai
+zinit load z-shell/zflai
 ```
 
 or with zgen:
 
 ```zsh
-zgen load zdharma/zflai
+zgen load z-shell/zflai
 ```
-
-etc.
 
 <!-- vim:set ft=markdown tw=80 fo+=an1 autoindent: -->
