@@ -1,5 +1,9 @@
 # `ZFLAI`
 
+[![CodeFactor](https://www.codefactor.io/repository/github/z-shell/zflai/badge)](https://www.codefactor.io/repository/github/z-shell/zflai)
+
+---
+
 ## Introduction
 
 Fast-Logging Framework For Zshell. Adding logging to a script can constitute a problem – it makes the script run
