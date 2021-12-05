@@ -88,5 +88,3 @@ function .zflai_subst_cmds {
 }
 
 typeset -g ZFLAI_LIBS_SOURCED=1
-
-# vim:ft=zsh:et:tw=72

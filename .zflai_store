@@ -24,7 +24,7 @@ for entry in "${DATA[@]}"; do
             priv_arr_name="SUB_DATA_${priv_arr_index}"
             local -a "$priv_arr_name"
             priv_arr_map[${sel_db}__%__${sel_table}]="$priv_arr_name"
-        fi 
+        fi
         arr_len="${(P)#priv_arr_name}"
         # Append is fast on recent Zshells (uses realloc)
         priv_arr_name="${priv_arr_name}[$(( arr_len + 1 ))]"
@@ -82,5 +82,3 @@ for (( idx=1; idx <= priv_arr_index; ++ idx )); do
 
     unset "$priv_arr_name"
 done
-
-# vim:ft=zsh:et

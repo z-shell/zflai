@@ -26,5 +26,3 @@ while read -r -t 1 __line; do
 done < "$__ini_file"
 
 return 0
-
-# vim:ft=zsh:et

@@ -73,10 +73,8 @@ if [[ ! -e "${0:h}/myflock/flock" && ! -e "${0:h}/myflock/flock.exe" ]]; then
     )
 fi
 
-# Initial read of configuration 
+# Initial read of configuration
 zflai_refresh_config
 
 ZFLAI_NULL_FD=13371337
 exec {ZFLAI_NULL_FD}>/dev/null
-
-# vim:ft=zsh:et

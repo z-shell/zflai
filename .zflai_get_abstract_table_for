@@ -31,5 +31,3 @@ local my_absdef_of_table_pmname my_absdef_of_table_have="0"
 : "${(P)myouttpe::=$my_absdef_of_table_have}"
 
 (( my_absdef_of_table_have )) && return 0 || return 1
-
-# vim:ft=zsh:et

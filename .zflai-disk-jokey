@@ -191,5 +191,3 @@ while (( 1 )); do
 done
 
 .zflai_store "$cause"
-
-# vim:ft=zsh:et

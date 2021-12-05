@@ -12,5 +12,3 @@ for __d in "$CACHE_DIR"/tables/*.tab(N); do
     typeset -gA "$__var_name"
     : "${(PAA)__var_name::=${hsharr[@]}}"
 done
-
-# vim:ft=zsh:et

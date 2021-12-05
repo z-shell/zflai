@@ -46,5 +46,3 @@ local -A hsh
 __vn="${__var_name}[@]"
 hsh=( "${(@kv)${(kvP)__vn}}" )
 builtin print -r -- "${(j: :)${(qkv@)hsh}}" >! "$CACHE_DIR"/tables/"$__var_name".tab
-
-# vim:ft=zsh:et

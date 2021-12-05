@@ -10,21 +10,22 @@
 #
 # No input, no return value (always 0)
 
-(( $ZFLAI_FD )) && { builtin print -r -u$ZFLAI_FD 2>&$ZFLAI_NULL_FD || { builtin exec {ZFLAI_FD}>&-; ZFLAI_FD=0; }; }
+(($ZFLAI_FD)) && { builtin print -r -u$ZFLAI_FD 2>&$ZFLAI_NULL_FD || {
+  builtin exec {ZFLAI_FD}>&-
+  ZFLAI_FD=0
+}; }
 
 # Running, but dangerously close to idle-exit moment?
-if (( ZFLAI_FD != 0 && ZFLAI_LAST_ACTION + ZFLAI_KEEP_ALIVE - 10 < EPOCHSECONDS )); then
-    builtin print -u$ZFLAI_FD '!ZFLAI-SPECIAL-CMD: exit' 2>/dev/null
-    builtin exec {ZFLAI_FD}>&-
-    ZFLAI_FD=0
+if ((ZFLAI_FD != 0 && ZFLAI_LAST_ACTION + ZFLAI_KEEP_ALIVE - 10 < EPOCHSECONDS)); then
+  builtin print -u$ZFLAI_FD '!ZFLAI-SPECIAL-CMD: exit' 2>/dev/null
+  builtin exec {ZFLAI_FD}>&-
+  ZFLAI_FD=0
 fi
 
 # Running (not much idle, that was checked above) ?
-(( ZFLAI_FD != 0 )) && return 0
+((ZFLAI_FD != 0)) && return 0
 
 # Not running, or closed to prevent race condition - start a new agent
 builtin exec {ZFLAI_FD}> >(.zflai-disk-jokey "$ZUID_ID" "$ZUID_CODENAME") || return 1
 
 return 0
-
-# vim:ft=zsh:et

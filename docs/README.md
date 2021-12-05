@@ -1,8 +1,15 @@
-# `ZFLAI`
+<h1> Zflai </h1>
 
-[![CodeFactor](https://www.codefactor.io/repository/github/z-shell/zflai/badge)](https://www.codefactor.io/repository/github/z-shell/zflai)
-
----
+- [Introduction](#introduction)
+  - [How Zflai Solves The Performance Issue](#how-zflai-solves-the-performance-issue)
+- [How To Use](#how-to-use)
+- [The Backend (Database) Definitions](#the-backend-database-definitions)
+  - [File Backend](#file-backend)
+  - [MySQL Backend](#mysql-backend)
+  - [SQLite3 Backend](#sqlite3-backend)
+  - [ElasticSearch Backend](#elasticsearch-backend)
+- [Configuration](#configuration)
+- [Installation](#installation)
 
 ## Introduction
 
@@ -19,7 +26,7 @@ execution time even more.
 Zflai operates in the following way:
 
 1. A background logging process is being started by a `>( … function …)`
-   substitution.  
+   substitution.
 2. A file descriptor is remembered in the script process.
 3. Writing to such descriptor is very fast.
 4. An utility function `zflai-log` is provided, which sends the message to the
@@ -45,8 +52,7 @@ logging to databases like MySQL and ElasticSearch is being available.
 
 There are only two end-user calls currently:
 
-1. `zflai-ctable "{TABLE-NAME} :: {FIELD1}:{TYPE} / {FIELD2}:{TYPE}
-   / … / {FIELDN}:{TYPE}"`
+1. `zflai-ctable "{TABLE-NAME} :: {FIELD1}:{TYPE} / {FIELD2}:{TYPE} / … / {FIELDN}:{TYPE}"`
 
    The types are borrowed from SQL - they're `varchar(…)`, `integer`, etc.
 
@@ -57,8 +63,7 @@ There are only two end-user calls currently:
    The tables are not bound to any particular backend. They can be used with
    multiple backends or just one of them, etc.
 
-2. `zflai-log "@{DB-NAME} / {TABLE} :: {FIELD1 TEXT…} | {FIELD2 TEXT…}
-   | … | {FIELDN TEXT…}`
+2. `zflai-log "@{DB-NAME} / {TABLE} :: {FIELD1 TEXT…} | {FIELD2 TEXT…} | … | {FIELDN TEXT…}`
 
    Schedules the multi-column message for storage in database `DB-NAME`, in its
    table `TABLE`.
@@ -233,10 +238,10 @@ zstyle ":plugin:zflai:dj" store_interval 30
 
 ## Installation
 
-Simply source or load as a Zsh plugin, e.g.: with Zplugin:
+Simply source or load as a Zsh plugin, e.g.: with [ZI](https://github.com/z-shell/zi):
 
 ```zsh
-zinit load z-shell/zflai
+zi load z-shell/zflai
 ```
 
 or with zgen:
@@ -244,5 +249,3 @@ or with zgen:
 ```zsh
 zgen load z-shell/zflai
 ```
-
-<!-- vim:set ft=markdown tw=80 fo+=an1 autoindent: -->

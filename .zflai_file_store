@@ -1,7 +1,7 @@
 # Copyright (c) 2018 Sebastian Gniazdowski
-# 
+#
 # $1 - target database ($sel_db)
-# $2 - target table ($sel_table) 
+# $2 - target table ($sel_table)
 # $3 - name of array that holds entries
 # $4 - target table with %ID and %CN resolved
 
@@ -59,4 +59,3 @@ done
 [[ -n "${DB_DEFS[${__db}_<hooks>_on_close_sh]}" ]] && ( builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; )
 
 return 0
-# vim:ft=zsh:et

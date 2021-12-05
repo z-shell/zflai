@@ -27,5 +27,3 @@ local key
 for key in "${(k)DB_DEFS[@]}"; do
     DB_DEFS[$key]="${DB_DEFS[$key]//(#b)(%XDG_CONFIG_HOME%|%XDG_CACHE_HOME%)/${XDG_MAP[${match[1]}]}}"
 done
-
-# vim:ft=zsh:et

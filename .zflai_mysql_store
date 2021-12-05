@@ -119,5 +119,3 @@ __hook_arr_out=()
     builtin cd -q "${DB_DEFS[${__db}_<access>_path]}" && \
         () { eval "${DB_DEFS[${__db}_<hooks>_on_close_sh]//(#m)${~_xchg_pat_}/${_xchg_map_[$MATCH]}}"; } "${__hook_arr_out[@]}"
 )
-
-# vim:ft=zsh:et
