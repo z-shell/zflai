@@ -1,12 +1,20 @@
 # Copyright (c) 2018 Sebastian Gniazdowski
+# Copyright (c) 2021 Z-Shell ZI Community
 
 0=${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}
 0=${${(M)0:#/*}:-$PWD/$0}
 
-if [[ ${zsh_loaded_plugins[-1]} != */zflai && -z ${fpath[(r)${0:h}]} ]]
-then
-    fpath+=( "${0:h}" )
-fi
+# Zsh Plugin Standard
+# https://github.com/z-shell/zi/wiki/Zsh-Plugin-Standard
+
+#if [[ ${zsh_loaded_plugins[-1]} != */zflai && -z ${fpath[(r)${0:h}]} ]]
+#then
+#    fpath+=( "${0:h}" )
+#fi
+
+if [[ $PMSPEC != *f* ]] {
+    fpath+=( "${0:h}/functions" )
+}
 
 typeset -g ZFLAI_SRC_DIR=${0:h}
 
