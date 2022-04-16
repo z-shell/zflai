@@ -1,16 +1,11 @@
 # Copyright (c) 2018 Sebastian Gniazdowski
 # Copyright (c) 2021 Z-Shell ZI Community
 
-0=${${ZERO:-${0:#$ZSH_ARGZERO}}:-${(%):-%N}}
-0=${${(M)0:#/*}:-$PWD/$0}
+0="${ZERO:-${${0:#$ZSH_ARGZERO}:-${(%):-%N}}}"
+0="${${(M)0:#/*}:-$PWD/$0}"
 
 # Zsh Plugin Standard
-# https://github.com/z-shell/zi/wiki/Zsh-Plugin-Standard
-
-#if [[ ${zsh_loaded_plugins[-1]} != */zflai && -z ${fpath[(r)${0:h}]} ]]
-#then
-#    fpath+=( "${0:h}" )
-#fi
+# https://z.digitalclouds.dev/community/zsh_plugin_standard/
 
 if [[ $PMSPEC != *f* ]] {
     fpath+=( "${0:h}/functions" )
