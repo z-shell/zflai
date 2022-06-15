@@ -5,7 +5,7 @@
 [access]
 engine = file
 file = %TABLE%.log
-path = %XDG_CACHE_HOME%/zflai/
+path = %XDG_CACHE_HOME%/zi/zflai/
 
 [hooks]
 on_open =
