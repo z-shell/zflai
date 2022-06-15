@@ -27,7 +27,7 @@ local __db="$1" __table="$2" __array="$3[@]"
 local __db_host="${DB_DEFS[${__db}_<access>_host]%/}" __db_index="${DB_DEFS[${__db}_<access>_index]}"
 local __db_type="${DB_DEFS[${__db}_<access>_type]}"
 local __it __it2 __vn __val __ts __text
-local __log="${XDG_CACHE_HOME:-$HOME/.config}/zflai/zflai.log"
+local __log="${XDG_CACHE_HOME:-$HOME/.config}/zi/zflai/zflai.log"
 
 local __table_def_param_name
 integer __have_table_def=0 __idx __coidx=1
