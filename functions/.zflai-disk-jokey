@@ -95,8 +95,8 @@ local REPLY MATCH
 integer MBEGIN MEND
 local -a match mbegin mend
 local ZUID_ID="$1" ZUID_CODENAME="$2"
-local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zflai"
-local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zflai"
+local CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/zi/zflai"
+local CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zi/zflai"
 local LOG_FILE="$CACHE_DIR/zflai.log"
 [[ ! -d "$CONFIG_DIR" ]] && command mkdir -p "$CONFIG_DIR"
 [[ ! -d "$CACHE_DIR" ]] && command mkdir -p "$CACHE_DIR"
